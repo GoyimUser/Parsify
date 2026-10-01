@@ -1,0 +1,23 @@
+/* Screen-only scrolling lives on a wrapper, never the semantic table itself. */
+.preview { min-width: 0; }
+.prose .table-scroll {
+  display: block; width: 100%; max-width: 100%; min-width: 0;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+  margin: 1.2em 0; border: 1px solid #b9cbd8; border-radius: 10px;
+}
+.prose .table-scroll:focus-visible { outline: 2px solid #3b84b7; outline-offset: 3px; }
+.prose .table-scroll > table {
+  display: table; width: max-content; min-width: 100%; max-width: none;
+  margin: 0; border-collapse: collapse; direction: rtl; overflow: visible;
+}
+.prose th, .prose td {
+  min-width: 6rem; max-width: min(24rem, 50vw); vertical-align: middle;
+  text-align: start; overflow-wrap: anywhere;
+}
+.prose :is(th, td)[align="left"] { text-align: left; }
+.prose :is(th, td)[align="center"] { text-align: center; }
+.prose :is(th, td)[align="right"] { text-align: right; }
+@media (prefers-reduced-motion: reduce) {
+  .prose .table-scroll { scroll-behavior: auto; }
+}

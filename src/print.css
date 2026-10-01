@@ -1,0 +1,56 @@
+/* Paper dimensions/margins belong to each platform's print dialog. These
+   shared rules govern document content only, never Android page settings. */
+@media print {
+  html, body, #root, .app, .app.dark, .workspace, .workspace.reader {
+    display: block !important; width: auto !important; min-width: 0 !important;
+    max-width: none !important; height: auto !important; min-height: 0 !important;
+    max-height: none !important; overflow: visible !important;
+    margin: 0 !important; padding: 0 !important;
+    background: white !important; color: #142536 !important;
+  }
+  .no-print, .toolbar, .editor, .notice, .export-modal-backdrop, .font-settings-backdrop {
+    display: none !important;
+  }
+  .workspace .preview, .workspace.reader .preview {
+    display: block !important; width: auto !important; min-width: 0 !important;
+    max-width: none !important; height: auto !important; min-height: 0 !important;
+    overflow: visible !important; contain: none !important; transform: none !important;
+    margin: 0 !important; padding: 0 !important; border: 0 !important;
+    border-radius: 0 !important; box-shadow: none !important;
+    background: white !important; color: #142536 !important;
+  }
+  .prose .table-scroll {
+    display: block !important; width: auto !important; max-width: 100% !important;
+    overflow: visible !important; height: auto !important; max-height: none !important;
+    border: 0 !important; border-radius: 0 !important; outline: none !important;
+    box-shadow: none !important; break-inside: auto !important;
+  }
+  .prose .table-scroll > table {
+    display: table !important; table-layout: fixed; width: 100% !important;
+    min-width: 0 !important; max-width: 100% !important; margin: 0 !important;
+    overflow: visible !important; break-inside: auto !important;
+    page-break-inside: auto !important; font-size: 11pt; line-height: 1.65;
+  }
+  .prose .table-wide > table { font-size: 9pt; }
+  .prose .table-wide tr > :first-child { width: 24%; }
+  .prose .table-wide :is(th, td) { padding: .35em .15em; }
+  .prose th, .prose td {
+    min-width: 0 !important; max-width: none !important;
+    padding: .35em .4em; overflow-wrap: anywhere; white-space: normal;
+  }
+  .prose thead { display: table-header-group; }
+  .prose tfoot { display: table-footer-group; }
+  .prose tr { break-inside: avoid; page-break-inside: avoid; }
+  .prose h1, .prose h2, .prose h3 { break-after: avoid; }
+  .prose .katex-display {
+    direction: ltr; text-align: center; overflow: visible !important;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .prose pre.fenced-code-block {
+    overflow: visible !important; white-space: pre-wrap !important;
+    overflow-wrap: anywhere; max-height: none !important;
+  }
+  .prose img { max-width: 100%; height: auto; }
+  .prose *, .prose { scrollbar-width: none !important; }
+  .prose ::-webkit-scrollbar, .prose::-webkit-scrollbar { display: none !important; width: 0; height: 0; }
+}

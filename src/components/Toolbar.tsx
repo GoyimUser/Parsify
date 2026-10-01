@@ -1,0 +1,4 @@
+type Props = { readerMode: boolean; dark: boolean; exporting: boolean; fileName: string; onOpen: () => void; onToggleReader: () => void; onToggleDark: () => void; onOpenFontSettings: () => void; onExport: () => void; };
+export function Toolbar({ readerMode, dark, exporting, fileName, onOpen, onToggleReader, onToggleDark, onOpenFontSettings, onExport }: Props) {
+  return <header className="toolbar no-print"><div className="document-title"><p className="eyebrow">PERSIAN MARKDOWN VIEWER</p><strong title={fileName}>{fileName}</strong></div><nav aria-label="ابزارهای سند"><button onClick={onOpen}>باز کردن</button><button onClick={onToggleReader}>{readerMode ? "ویرایش" : "مطالعه"}</button><button onClick={onToggleDark}>{dark ? "روشن" : "تیره"}</button><button onClick={onOpenFontSettings}>قلم‌ها</button><button className="primary" onClick={onExport} disabled={exporting}>{exporting ? "در حال ساخت…" : "خروجی PDF"}</button></nav></header>;
+}

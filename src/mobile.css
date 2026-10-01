@@ -1,0 +1,50 @@
+/* Cross-platform typography and Android-focused interaction refinements. */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("vazirmatn/fonts/webfonts/Vazirmatn[wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  /* Covers U+0654 plus precomposed U+06C0/U+06D3 in the embedded fallback. */
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+  font-display: block;
+}
+
+:root { font-family: "B Nazanin", "Nazanin", "Vazirmatn", sans-serif; font-synthesis: none; font-kerning: normal; font-variant-ligatures: common-ligatures; }
+.editor textarea { font-family: "B Nazanin", "Nazanin", "Vazirmatn", sans-serif; }
+/* Keep the original Yas face while inheriting KaTeX macro styling, e.g.
+   \mathbf{۱۲} is bold and \mathit{۱۲} is italic on every target. */
+.persian-math-text { font-family: "B Nazanin", "Nazanin", "Vazirmatn", serif !important; font-weight: inherit; font-style: inherit; font-synthesis: weight style; unicode-bidi: isolate; }
+.persian-math-digit { font-family: "Yas Math Digits" !important; font-weight: inherit; font-style: inherit; font-synthesis: weight style; font-variant-numeric: normal; }
+
+.app { min-height: 100dvh; padding: max(22px, env(safe-area-inset-top)) max(22px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left)); }
+.toolbar { position: sticky; top: max(8px, env(safe-area-inset-top)); z-index: 10; border-radius: 16px; background: #fffffff2; backdrop-filter: blur(14px); }
+.dark .toolbar { background: #172432f2; }
+.document-title { min-width: 0; }
+.toolbar strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toolbar nav { justify-content: flex-start; }
+.toolbar button { min-height: 42px; border-radius: 10px; background: #fff; touch-action: manipulation; transition: transform .15s ease, background .15s ease; }
+.toolbar button:active { transform: scale(.97); }
+.dark .toolbar button { background: #203445; border-color: #3d586d; }
+.toolbar button:disabled { cursor: wait; opacity: .72; }
+.notice { position: sticky; top: 88px; z-index: 11; width: fit-content; max-width: min(94vw, 560px); margin: 0 auto 14px; padding: 9px 14px; color: #174e76; background: #e7f4fd; border: 1px solid #b7daef; border-radius: 10px; box-shadow: 0 5px 15px #29465b12; }
+.dark .notice { color: #d7f1ff; background: #1d4158; border-color: #487a97; }
+.export-modal-backdrop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: end center; padding: 18px; background: #0d1d2d80; }
+.export-modal { width: min(100%, 560px); max-height: calc(100dvh - 36px); overflow: auto; padding: 22px; color: #142536; background: #fff; border-radius: 20px; box-shadow: 0 24px 70px #07111d80; }
+.export-modal h2 { margin: 0; color: #174e76; }.export-modal header p, .export-summary { margin: 7px 0 18px; color: #587084; }.export-modal > label, .export-modal fieldset { display: grid; gap: 7px; margin: 13px 0; font-weight: 700; }.export-modal select, .export-modal input[type="number"] { width: 100%; min-height: 44px; padding: 7px 10px; color: inherit; background: #fff; border: 1px solid #b8c9d5; border-radius: 9px; font: inherit; }.export-modal fieldset { grid-template-columns: 1fr 1fr; padding: 11px; border: 1px solid #d4e0e9; border-radius: 10px; }.export-modal legend { padding: 0 5px; }.export-modal fieldset label { display: flex; gap: 7px; align-items: center; }.export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }.export-grid label { display: grid; gap: 7px; }.export-modal footer { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }.export-modal button { min-height: 44px; padding: 8px 14px; border: 1px solid #b8c9d5; border-radius: 9px; background: #fff; color: inherit; font: inherit; }.export-modal button.primary { color: #fff; background: #195783; border-color: #195783; }.export-modal button:disabled { opacity: .55; }
+
+@media (max-width: 900px) {
+  .app { padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+  .toolbar { top: max(4px, env(safe-area-inset-top)); gap: 10px; padding: 12px; align-items: stretch; flex-direction: column; }
+  .toolbar strong { font-size: 17px; }
+  .toolbar nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+  .toolbar button { min-width: 0; min-height: 44px; padding: 7px 4px; font-size: 13px; }
+  .notice { top: 150px; width: 100%; margin-bottom: 10px; text-align: center; }
+  .workspace { display: block; min-height: calc(100dvh - 150px); }
+  .workspace:not(.reader) .preview { display: none; }
+  .workspace.reader .preview { min-height: calc(100dvh - 160px); }
+  .editor textarea { min-height: calc(100dvh - 180px); padding: 18px; font-size: 17px; }
+  .preview { padding: 22px 18px 34px; border-radius: 14px; font-size: 18px; line-height: 2.05; }
+  .prose h1 { font-size: 1.65em; }
+  .prose h2 { font-size: 1.35em; }
+  .prose table { display: block; overflow-x: auto; }
+}

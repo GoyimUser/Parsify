@@ -1,0 +1,14 @@
+import { useMemo, useState } from "react";
+import { validPdfLayout, type PdfLayout } from "../lib/android-pdf";
+
+type Paper = "a4" | "letter" | "custom";
+type Orientation = "portrait" | "landscape";
+const paperDimensions: Record<Exclude<Paper, "custom">, [number, number]> = { a4: [210, 297], letter: [215.9, 279.4] };
+
+export function AndroidPdfSettings({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (layout: PdfLayout) => void }) {
+  const [paper, setPaper] = useState<Paper>("a4"); const [orientation, setOrientation] = useState<Orientation>("portrait"); const [margin, setMargin] = useState(15); const [customWidth, setCustomWidth] = useState(210); const [customHeight, setCustomHeight] = useState(297);
+  const dimensions = useMemo(() => paper === "custom" ? [customWidth, customHeight] : paperDimensions[paper], [paper, customWidth, customHeight]);
+  const [rawWidth, rawHeight] = dimensions; const [widthMm, heightMm] = orientation === "portrait" ? [Math.min(rawWidth, rawHeight), Math.max(rawWidth, rawHeight)] : [Math.max(rawWidth, rawHeight), Math.min(rawWidth, rawHeight)];
+  const isValid = validPdfLayout({ widthMm, heightMm, marginMm: margin });
+  return <div className="export-modal-backdrop" role="presentation"><section className="export-modal" role="dialog" aria-modal="true" aria-labelledby="pdf-settings-title"><header><h2 id="pdf-settings-title">تنظیمات خروجی PDF</h2><p>فایل با موتور چاپ اندروید و کیفیت برداری تولید می‌شود.</p></header><label>اندازهٔ کاغذ<select value={paper} onChange={(event) => setPaper(event.target.value as Paper)}><option value="a4">A4 — ۲۱۰ × ۲۹۷ میلی‌متر</option><option value="letter">Letter — ۲۱۵٫۹ × ۲۷۹٫۴ میلی‌متر</option><option value="custom">اندازهٔ سفارشی</option></select></label>{paper === "custom" && <div className="export-grid"><label>عرض (میلی‌متر)<input type="number" min="50" max="1000" value={customWidth} onChange={(event) => setCustomWidth(Number(event.target.value))} /></label><label>ارتفاع (میلی‌متر)<input type="number" min="50" max="1000" value={customHeight} onChange={(event) => setCustomHeight(Number(event.target.value))} /></label></div>}<fieldset><legend>جهت صفحه</legend><label><input type="radio" checked={orientation === "portrait"} onChange={() => setOrientation("portrait")} /> عمودی</label><label><input type="radio" checked={orientation === "landscape"} onChange={() => setOrientation("landscape")} /> افقی</label></fieldset><label>حاشیه (میلی‌متر)<input type="number" min="0" max="50" value={margin} onChange={(event) => setMargin(Number(event.target.value))} /></label><p className="export-summary">خروجی: {widthMm.toFixed(1)} × {heightMm.toFixed(1)} میلی‌متر، حاشیهٔ {margin} میلی‌متر</p><footer><button onClick={onCancel}>انصراف</button><button className="primary" disabled={!isValid} onClick={() => onConfirm({ widthMm, heightMm, marginMm: margin })}>ادامه و ذخیره</button></footer></section></div>;
+}

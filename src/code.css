@@ -1,0 +1,27 @@
+/* Shared by native app and extension shadow roots; never targets inline code. */
+:is(.prose, .reader) .code-frame pre.fenced-code-block > code {
+  font-family: var(--code-font, "Ubuntu Mono", monospace);
+  font-variant-ligatures: var(--code-ligatures, none);
+  font-feature-settings: var(--code-features, "liga" 0, "calt" 0);
+  direction: ltr; text-align: left; unicode-bidi: isolate;
+}
+:is(.prose, .reader) .code-frame[data-highlighted="true"] {
+  color: #e9e4f4; background: #231f30; border-color: #49415e;
+  print-color-adjust: exact; -webkit-print-color-adjust: exact;
+}
+:is(.prose, .reader) .code-frame[data-highlighted="true"] .code-frame-header {
+  color: #d8d1e9; background: transparent; border-color: #49415e;
+}
+:is(.prose, .reader) .code-frame[data-highlighted="true"] pre { color: inherit; background: transparent; }
+[data-code-theme="midnight"] .code-frame[data-highlighted="true"] { background: #111c2a; }
+.code-frame .code-bidi-isolate { direction: rtl; unicode-bidi: isolate; font-family: "Vazirmatn", sans-serif; }
+.code-frame .hljs-comment, .code-frame .hljs-quote { color: #b3a6c7; font-style: italic; }
+.code-frame .hljs-string, .code-frame .hljs-regexp, .code-frame .hljs-addition { color: #f1a99a; }
+.code-frame .hljs-number, .code-frame .hljs-attr, .code-frame .hljs-selector-attr { color: #f6c177; }
+.code-frame .hljs-keyword, .code-frame .hljs-selector-tag { color: #c4a7e7; font-weight: 700; }
+.code-frame .hljs-type, .code-frame .hljs-built_in, .code-frame .hljs-selector-class { color: #8bd5ca; }
+.code-frame .hljs-literal, .code-frame .hljs-symbol, .code-frame .hljs-variable { color: #ebbcba; }
+.code-frame .hljs-meta, .code-frame .hljs-tag, .code-frame .hljs-deletion { color: #eb6f92; }
+.code-frame .hljs-title, .code-frame .hljs-section, .code-frame .hljs-name, .code-frame .hljs-attribute { color: #9ccfd8; }
+.code-frame .hljs-emphasis { font-style: italic; }.code-frame .hljs-strong { font-weight: 700; }
+.code-frame .hljs-link { color: #9ccfd8; text-decoration: underline; }
