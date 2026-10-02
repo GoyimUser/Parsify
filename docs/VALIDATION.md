@@ -1,4 +1,10 @@
-# v0.1.0 validation and limitations
+# Validation and limitations
+
+For the extension-only v0.1.1 hotfix (component 1.1.2), see the
+[rich prose / math regression validation](RENDERING-REGRESSION-QA.md).
+The native-app record below remains unchanged.
+
+## v0.1.0
 
 ## Completed
 

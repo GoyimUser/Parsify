@@ -2,6 +2,7 @@ import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 import type { Site } from "./adapters";
 import { protectDomTables, protectRawTables } from "./tables";
+import { protectRawMathDom } from "./math-dom";
 
 export class UnsupportedContent extends Error {}
 
@@ -22,12 +23,14 @@ export function extractMarkdown(source: HTMLElement, site?: Site): string {
       emphasis.append(...span.childNodes);
       span.replaceWith(emphasis);
     }
-    for (const pre of clone.querySelectorAll("pre")) {
-      if (pre.closest("ms-katex, ms-code-block") || pre.querySelector(":scope > code")) continue;
-      const block = clone.ownerDocument.createElement("div");
-      block.append(...pre.childNodes);
-      pre.replaceWith(block);
-    }
+  }
+  // A layout pre is not proof of a Markdown code fence. Accept semantic
+  // pre > code or a site's explicit code component, never generic prose.
+  for (const pre of clone.querySelectorAll("pre")) {
+    if (pre.closest("ms-katex, ms-code-block, code-block, .code-block") || pre.querySelector(":scope > code")) continue;
+    const block = clone.ownerDocument.createElement("div");
+    block.append(...pre.childNodes);
+    pre.replaceWith(block);
   }
   // Google sometimes labels code only in an accordion header. Recover that
   // label before removing interactive chrome from the detached clone.
@@ -52,6 +55,13 @@ export function extractMarkdown(source: HTMLElement, site?: Site): string {
     fragments.set(key, text);
     return key;
   };
+  const mathNode = (tex: string, display: boolean) => {
+    const node = clone.ownerDocument.createElement(display ? "div" : "span");
+    const token = preserve(display ? `\n\n$$\n${tex}\n$$\n\n` : `$${tex}$`);
+    node.setAttribute(display ? "data-pmv-display-math" : "data-pmv-inline-math", token);
+    node.textContent = token;
+    return node;
+  };
 
   // Extract original TeX, never the duplicated accessible+visible math text.
   const mathSelector = 'ms-katex, .katex-display, .katex, [data-math], [data-latex], mjx-container, .MathJax';
@@ -63,15 +73,15 @@ export function extractMarkdown(source: HTMLElement, site?: Site): string {
     const display = math.matches('ms-katex.display, .katex-display, [display="true"], [display="block"], .math-block')
       || !!math.querySelector('.katex-display, math[display="block"]')
       || math.getAttribute("data-display") === "true";
-    const token = preserve(display ? `\n\n$$\n${tex}\n$$\n\n` : `$${tex}$`);
-    if (site === "studio" && display) {
-      // Expand flow math DURING conversion, before enclosing lists/quotes add
-      // their indentation. Late multiline placeholder replacement loses it.
-      const block = clone.ownerDocument.createElement("div");
-      block.setAttribute("data-pmv-display-math", token);
-      block.textContent = token;
-      math.replaceWith(block);
-    } else math.replaceWith(clone.ownerDocument.createTextNode(token));
+    if (!tex.trim()) {
+      const empty = clone.ownerDocument.createElement("span");
+      empty.setAttribute("data-pmv-empty-math", "");
+      math.replaceWith(empty);
+      continue;
+    }
+    // Expand flow math DURING conversion, before enclosing lists/quotes add
+    // their indentation. Late multiline placeholder replacement loses it.
+    math.replaceWith(mathNode(tex, display));
   }
 
   // Studio represents backtick spans as span.inline-code, not semantic <code>.
@@ -85,14 +95,8 @@ export function extractMarkdown(source: HTMLElement, site?: Site): string {
   }
 
   protectRawTables(clone, preserve);
-  // Keep raw delimiters safe from Turndown's Markdown escaping as well.
-  const walker = clone.ownerDocument.createTreeWalker(clone, 4);
-  const textNodes: Text[] = [];
-  while (walker.nextNode()) textNodes.push(walker.currentNode as Text);
-  for (const node of textNodes) {
-    if (node.parentElement?.closest("pre, code")) continue;
-    node.data = node.data.replace(/(?<!\\)(\$\$[\s\S]*?(?<!\\)\$\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\)|\$(?!\$)(?:\\.|[^$\n])*?(?<!\\)\$)/g, preserve);
-  }
+  protectRawMathDom(clone, mathNode);
+  if (clone.querySelector("[data-pmv-empty-math]")) throw new UnsupportedContent("Empty or pending math source");
 
   const converter = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced", bulletListMarker: "-" });
   converter.use(gfm);
@@ -100,9 +104,19 @@ export function extractMarkdown(source: HTMLElement, site?: Site): string {
     filter: node => node.hasAttribute("data-pmv-table"),
     replacement: (_content, node) => fragments.get((node as HTMLElement).getAttribute("data-pmv-table")!)!,
   });
-  if (site === "studio") converter.addRule("studio-display-math", {
+  converter.addRule("display-math", {
     filter: node => node.hasAttribute("data-pmv-display-math"),
     replacement: (_content, node) => fragments.get((node as HTMLElement).getAttribute("data-pmv-display-math")!)!,
+  });
+  converter.addRule("inline-math", {
+    filter: node => node.hasAttribute("data-pmv-inline-math"),
+    replacement: (_content, node) => {
+      const element = node as HTMLElement;
+      const next = element.nextSibling;
+      // Keep adjacent equation boundaries from merging into a $$ delimiter.
+      const gap = next?.nodeType === 1 && (next as Element).hasAttribute("data-pmv-inline-math") ? " " : "";
+      return fragments.get(element.getAttribute("data-pmv-inline-math")!)! + gap;
+    },
   });
   converter.addRule("source-code", {
     filter: "pre",

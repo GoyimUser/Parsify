@@ -5,7 +5,7 @@ import type { Site } from "./adapters";
 import { decorateTables } from "./tables";
 
 export function renderSafe(markdown: string, site?: Site): DocumentFragment {
-  return decorateTables(DOMPurify.sanitize(renderMarkdown(markdown, { preserveMathIndentation: site === "studio" }), {
+  return decorateTables(DOMPurify.sanitize(renderMarkdown(markdown, { canonicalMath: true }), {
     RETURN_DOM_FRAGMENT: true,
     ADD_TAGS: ["annotation", "semantics"],
     ADD_ATTR: ["encoding"],

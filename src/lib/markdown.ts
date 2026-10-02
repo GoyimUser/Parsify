@@ -577,13 +577,16 @@ const processor = unified()
 
 const nativeProcessor = processor().use(rehypeResponsiveTables);
 
-export function renderMarkdown(markdown: string, options: { preserveMathIndentation?: boolean; responsiveTables?: boolean } = {}): string {
-  const latexNormalized = normalizeLatexMathDelimiters(markdown);
-  // DOM-derived Studio Markdown already has canonical flow delimiters. Its
+export function renderMarkdown(markdown: string, options: { canonicalMath?: boolean; preserveMathIndentation?: boolean; responsiveTables?: boolean } = {}): string {
+  // DOM adapters have already identified equations. Reinterpreting their
+  // Markdown escapes as TeX destroys ordinary bracketed prose.
+  // Native document input retains its existing delimiter normalization.
+  const latexNormalized = options.canonicalMath ? markdown : normalizeLatexMathDelimiters(markdown);
+  // DOM-derived Markdown already has canonical flow delimiters. Its
   // indentation belongs to lists/quotes, not accidental user whitespace.
-  // Native apps and Gemini retain their existing normalization by default.
-  const displayNormalized = options.preserveMathIndentation ? latexNormalized : normalizeDisplayMathDelimiters(latexNormalized);
+  // Native document input retains its existing normalization by default.
+  const displayNormalized = options.canonicalMath || options.preserveMathIndentation ? latexNormalized : normalizeDisplayMathDelimiters(latexNormalized);
   const arrayNormalized = normalizeArrayColumnPreambles(displayNormalized);
-  const environmentNormalized = normalizeStandaloneDisplayMath(arrayNormalized);
+  const environmentNormalized = options.canonicalMath ? arrayNormalized : normalizeStandaloneDisplayMath(arrayNormalized);
   return String((options.responsiveTables ? nativeProcessor : processor).processSync(shieldInlineMathPipes(environmentNormalized)));
 }

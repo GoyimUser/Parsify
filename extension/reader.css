@@ -20,9 +20,9 @@
 .reader img { max-width:100%; height:auto; }
 .english-prose { font-family:var(--english-font,Arial,serif); }
 code { font-family:"Ubuntu Mono",monospace; direction:ltr; unicode-bidi:isolate; border-radius:4px; padding:.1em .25em; background:#8994c518; }
-.katex { direction:ltr; unicode-bidi:isolate; }
-.katex-display { display:block; direction:ltr; unicode-bidi:isolate; text-align:center; overflow-x:auto; overflow-y:hidden; padding:.6em 0; }
-.katex-display>.katex { direction:ltr; text-align:center; }
+.katex { display:inline-block; direction:ltr; unicode-bidi:isolate; text-align:left; }
+.katex-display { display:block; width:100%; max-width:100%; margin-inline:0; direction:ltr; unicode-bidi:isolate; text-align:center; overflow-x:auto; overflow-y:hidden; padding:.6em 0; }
+.katex-display>.katex { display:block; width:max-content; min-width:100%; direction:ltr; text-align:center; }
 .persian-math-digit { font-family:"Yas Math Digits"!important; font-weight:inherit; font-style:inherit; font-synthesis:weight style; }
 .persian-math-text { font-family:var(--math-text-font,"B Nazanin","Vazirmatn",serif)!important; direction:rtl; unicode-bidi:isolate; font-weight:inherit; font-style:inherit; }
 .katex .mathbf .persian-math-digit,.katex .boldsymbol .persian-math-digit { font-weight:700; }

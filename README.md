@@ -20,7 +20,7 @@ Parsify is a local-first Persian Markdown reader and AI-chat enhancement toolkit
 | Android | Touch-friendly viewer/editor, paper size/orientation/margin controls, native printing | Android 7+ ARM64 APK |
 | Chrome | Streaming response enhancement, original/enhanced views, per-site settings | Manifest V3 unpacked ZIP, Chrome 120+ |
 
-The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. The extension retains component version **1.1.1**; repository release **v0.1.0** is the first unified public release, not a component downgrade.
+The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.1** contains the extension hotfix (component **1.1.2**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
 
 ## Features
 
@@ -40,7 +40,7 @@ The extension has **no PDF export**. Native app titles and identifiers retain **
 
 *Local synthetic fixture, not a private or live Google chat; the table is scrolled to its leftmost columns.*
 
-Download packages and `SHA256SUMS.txt` from [GitHub Releases](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0). Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
+Download the [latest Chrome extension](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.1) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
 
 ### Windows
 
@@ -62,7 +62,7 @@ This is a **development-signed sideload build**, not a Play Store production rel
 
 ### Chrome extension
 
-1. Extract `Parsify-v0.1.0-chrome-extension.zip` into a permanent folder.
+1. Extract `Parsify-v0.1.1-chrome-extension.zip` into a permanent folder.
 2. Open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the folder containing `manifest.json`.
 3. Refresh Gemini / AI Studio tabs. Use the Parsify popup or options page to enable sites and customize fonts, code theme and ligatures.
 4. Use the original/enhanced toggle when needed. Disabling enhancements restores original content.

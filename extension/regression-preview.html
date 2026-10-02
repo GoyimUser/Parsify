@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parsify — prose regression checks</title>
+<link rel="stylesheet" href="dist/fonts.css">
+<style>
+  body { margin: 0; background: #f4f5f8; color: #202430; font: 15px system-ui; }
+  nav { padding: 16px; background: white; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 2; }
+  button { padding: 8px 12px; margin: 4px; }
+  #chat { max-width: 900px; margin: 20px auto; padding: 20px; background: white; }
+  #chat.narrow { max-width: 360px; }
+  #result { margin-inline: 12px; }
+  message-content, ms-cmark-node { display: block; }
+</style>
+<nav>
+  <strong>Parsify rendering regression QA</strong>
+  <button id="site">Switch to AI Studio</button>
+  <button id="width">Narrow layout</button>
+  <button id="stream">Stream explanation</button>
+  <button id="verify">Verify structure</button>
+  <output id="result"></output>
+</nav>
+<main id="chat"></main>
+<script type="module" src="./regression-preview.ts"></script>
+</html>

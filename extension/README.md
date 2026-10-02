@@ -11,6 +11,29 @@ In Chrome open `chrome://extensions`, enable Developer mode, select **Load unpac
 
 ## Behavior and architecture
 
+### Rich prose / math boundary correction (1.1.2)
+
+DOM extraction now establishes math boundaries before Markdown escaping. Ordinary
+bracketed labels such as `[شماره]` remain prose; conversion-generated escapes are
+never reinterpreted as LaTeX delimiters. Actual raw dollar and LaTeX delimiters
+still work. Display math is serialized before list/blockquote indentation on
+both sites, so explanatory paragraphs between equations remain rich text rather
+than accidental indented code. Only semantic `pre > code` or explicit site code
+components receive code frames. Genuine code examples retain their literal
+Markdown and dollar signs.
+
+Multiline formulas split across spans and line breaks are recovered without
+flattening surrounding rich text. Complete cases/array/aligned environments
+are validated before recovery; incomplete streams retain their native view.
+Inline formulas are isolated LTR boxes, while display formulas center within
+their enclosing column and scroll horizontally if too wide. Font files and
+numeric typography are unchanged.
+
+Run `pnpm extension:preview` and visit
+`/extension/regression-preview.html` for a synthetic Gemini/AI Studio fixture
+with dashboard brackets, nested equations, emphasis, quotes, real code, narrow
+layout and streaming checks. No private chat content is included.
+
 The adapter identifies assistant response containers. A MutationObserver reads detached clones; KaTeX annotations and math data attributes recover original TeX before DOM-to-Markdown conversion. Math and code are protected from conversion escapes. The shared unified/remark/rehype pipeline renders the result and DOMPurify sanitizes it. Output lives in a shadow root so host styles do not affect KaTeX or code. Only changed output blocks are replaced; work is coalesced during streams. Original content remains mounted for the host framework. Each response has an Original/enhanced toggle; disabling the extension restores all original content. Response-level controls stay outside the replacement. Code blocks have copy/save controls with original source text.
 
 Open shadow roots are observed recursively, including roots attached later. Closed shadow roots are inaccessible. Interactive widgets or math without recoverable source remain in their original view. Site markup can change: selectors are isolated in `src/adapters.ts`; test fixtures are not proof of compatibility with future Google releases. Streaming rerenders may replace the current incomplete block while completed unchanged blocks retain their DOM identity.

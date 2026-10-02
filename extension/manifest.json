@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Parsify — Persian Chat Reader",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Persian typography, readable math and beautiful code for Gemini and Google AI Studio. All rendering stays on your device.",
   "minimum_chrome_version": "120",
   "permissions": ["storage"],

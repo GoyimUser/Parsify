@@ -5,5 +5,5 @@
     "esModuleInterop": true, "skipLibCheck": true, "noEmit": true,
     "types": ["chrome", "node"], "allowImportingTsExtensions": true
   },
-  "include": ["src", "tests", "preview.ts", "table-preview.ts"]
+  "include": ["src", "tests", "preview.ts", "table-preview.ts", "regression-preview.ts"]
 }
