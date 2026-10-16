@@ -22,7 +22,7 @@ function studioElement(html: string) {
   }
   return source;
 }
-function rendered(source: HTMLElement, site?: "studio" | "gemini") {
+function rendered(source: HTMLElement, site?: "studio" | "gemini" | "chatgpt") {
   const node = document.createElement("div"); node.append(renderSafe(extractMarkdown(source, site), site)); return node;
 }
 
@@ -180,8 +180,8 @@ describe("site adapters and settings", () => {
     expect(source.outerHTML).toBe(before);
     gemini.destroy();
   });
-  it("leaves AI Studio and standalone preview layout unchanged", () => {
-    for (const site of ["studio", undefined] as const) {
+  it("leaves AI Studio, ChatGPT and standalone preview layout unchanged", () => {
+    for (const site of ["studio", "chatgpt", undefined] as const) {
       const view = createView(element('<p>متن</p>'), defaults, file => file, site);
       expect(view.host.style.maxWidth).toBe("100%");
       expect(view.host.style.width).toBe("");
@@ -193,13 +193,47 @@ describe("site adapters and settings", () => {
   it("identifies only exact supported hosts", () => {
     expect(detectSite("gemini.google.com")).toBe("gemini");
     expect(detectSite("aistudio.google.com")).toBe("studio");
+    expect(detectSite("chatgpt.com")).toBe("chatgpt");
+    expect(detectSite("www.chatgpt.com")).toBe("chatgpt");
     expect(detectSite("gemini.google.com.example.org")).toBeUndefined();
+    expect(detectSite("chatgpt.com.example.org")).toBeUndefined();
   });
   it("ignores user input and nested duplicate response roots", () => {
     const dom = element('<user-query><div class="markdown">user</div></user-query><model-response><message-content><div class="markdown">model</div></message-content></model-response>');
     expect(findResponses(dom,"gemini")).toHaveLength(1);
     const studio = element('<ms-chat-turn data-role="user"><ms-cmark-node>user</ms-cmark-node></ms-chat-turn><ms-chat-turn data-role="model"><ms-cmark-node>model</ms-cmark-node></ms-chat-turn>');
     expect(findResponses(studio,"studio").map(n => n.textContent)).toEqual(["model"]);
+    const chatgpt = element('<article data-message-author-role="user"><div class="markdown">user</div></article><article data-message-author-role="assistant"><div class="markdown"><p>مدل $1.8 + |6|$</p></div><button>Copy</button></article>');
+    expect(findResponses(chatgpt, "chatgpt").map(n => n.textContent?.trim())).toEqual(["مدل $1.8 + |6|$"]);
+  });
+  it("targets only ChatGPT assistant rich response blocks", () => {
+    const source = element('<article data-message-author-role="assistant"><div class="markdown"><p>فرمول $n^2$</p><blockquote>نکته</blockquote><pre><code class="language-python">print(16)</code></pre></div><div contenteditable="true">composer</div><button>Copy</button></article><article data-message-author-role="user"><div class="markdown">نباید تغییر کند</div></article>');
+    const responses = findResponses(source, "chatgpt");
+    expect(responses).toHaveLength(1);
+    const output = rendered(responses[0], "chatgpt");
+    expect(output.querySelector(".katex")?.textContent).toContain("n");
+    expect(output.querySelector("blockquote")?.textContent?.trim()).toBe("نکته");
+    expect(output.querySelector(".code-frame-language")?.textContent).toBe("Python");
+    expect(output.textContent).not.toContain("composer");
+  });
+  it("recognizes ChatGPT's completed turn wrapper without touching a user turn", () => {
+    const source = element('<article data-testid="conversation-turn-user"><h4>You said:</h4><div class="markdown">user</div></article><article data-testid="conversation-turn-model"><h4>ChatGPT said:</h4><div class="markdown"><p>مدل <span class="katex"><math><semantics><annotation encoding="application/x-tex">x^2</annotation></semantics></math></span></p></div></article>');
+    expect(findResponses(source, "chatgpt").map(node => node.textContent?.trim())).toEqual(["مدل x^2"]);
+  });
+  it("uses ChatGPT's live assistant-message root and excludes the author heading", () => {
+    const source = element('<div data-chatgpt-search-unit-key="turn:assistant"><h4 data-conversation-role="assistant">ChatGPT said:</h4><div data-markdown-text-style="assistant-message"><h2>پاسخ</h2><p>عدد $1.8$</p><pre><code class="language-python">print(16)</code></pre></div><button>Copy</button></div><div data-chatgpt-search-unit-key="turn:user"><h4 data-conversation-role="user">You said:</h4><div data-markdown-text-style="user-message">نباید انتخاب شود</div></div>');
+    const responses = findResponses(source, "chatgpt");
+    expect(responses).toHaveLength(1);
+    expect(responses[0].getAttribute("data-markdown-text-style")).toBe("assistant-message");
+    const output = rendered(responses[0], "chatgpt");
+    expect(output.querySelector("h2")?.textContent).toBe("پاسخ");
+    expect(output.querySelector(".katex-html")?.textContent).toContain("۱.۸");
+    expect(output.querySelector(".code-frame-language")?.textContent).toBe("Python");
+    expect(output.textContent).not.toContain("ChatGPT said:");
+  });
+  it("migrates the former two-site setting to all supported chat sites", () => {
+    expect(normalizeSettings({ sites: "both" }).sites).toBe("all");
+    expect(normalizeSettings({ sites: "chatgpt" }).sites).toBe("chatgpt");
   });
   it("validates persisted settings instead of accepting injected CSS values", () => {
     expect(normalizeSettings({enabled:false, persianFont:'x"; color:red;', englishFont:"Times New Roman"})).toEqual({...defaults,enabled:false,englishFont:"Times New Roman"});

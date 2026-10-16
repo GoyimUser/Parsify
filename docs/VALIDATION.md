@@ -1,7 +1,9 @@
 # Validation and limitations
 
-For the extension-only v0.1.1 hotfix (component 1.1.2), see the
-[rich prose / math regression validation](RENDERING-REGRESSION-QA.md).
+For the extension-only v0.1.2 ChatGPT adapter release (component 1.1.3), see
+[the ChatGPT adapter validation record](CHATGPT-ADAPTER-QA.md). The v0.1.1
+[rich prose / math regression validation](RENDERING-REGRESSION-QA.md) remains
+applicable to Gemini and AI Studio.
 The native-app record below remains unchanged.
 
 ## v0.1.0

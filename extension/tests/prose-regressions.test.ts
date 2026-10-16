@@ -8,7 +8,7 @@ function source(html: string) {
   node.innerHTML = html;
   return node;
 }
-function render(html: string, site: "studio" | "gemini") {
+function render(html: string, site: "studio" | "gemini" | "chatgpt") {
   const result = document.createElement("div");
   result.append(renderSafe(extractMarkdown(source(html), site), site));
   return result;
@@ -16,7 +16,7 @@ function render(html: string, site: "studio" | "gemini") {
 const math = (tex: string, display = false) =>
   `<span class="${display ? "katex-display" : "katex"}"><math><semantics><annotation encoding="application/x-tex">${tex}</annotation></semantics></math></span>`;
 
-describe.each(["studio", "gemini"] as const)("%s rich prose regressions", site => {
+describe.each(["studio", "gemini", "chatgpt"] as const)("%s rich prose regressions", site => {
   it("does not reinterpret escaped prose brackets as display equations", () => {
     const result = render('<h3>داشبورد</h3><ul><li><p><strong>موقعیت:</strong> سوال [شماره] از 40</p></li><li><p><strong>مبحث:</strong> [گراف / منطق]</p></li><li><p><strong>سطح:</strong> [سبز | زرد]</p></li><li><p><strong>زمان:</strong> [تخمین زمان]</p></li></ul><p><code>[0/40]</code></p>', site);
     expect(result.querySelectorAll("li")).toHaveLength(4);

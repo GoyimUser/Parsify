@@ -5,7 +5,7 @@ import { extractMarkdown } from "../src/extract";
 import { renderSafe, patchBlocks } from "../src/view";
 const sample = readFileSync("extension/fixtures/qa-table.md", "utf8");
 function element(html: string) { const el = document.createElement("div"); el.innerHTML = html; return el; }
-function roundtrip(html: string, site: "studio" | "gemini" = "studio") {
+function roundtrip(html: string, site: "studio" | "gemini" | "chatgpt" = "studio") {
   return renderSafe(extractMarkdown(element(html), site), site);
 }
 function checkSample(output: DocumentFragment) {
@@ -35,7 +35,7 @@ describe("extension tables", () => {
     expect(output.querySelectorAll("del")).toHaveLength(4);
     expect(output.querySelector('.table-scroll[tabindex="0"][role="region"] > table')).not.toBeNull();
   });
-  it.each(["gemini", "studio"] as const)("roundtrips the QA table through %s", site => {
+  it.each(["gemini", "studio", "chatgpt"] as const)("roundtrips the QA table through %s", site => {
     const source = document.createElement("div"); source.append(renderSafe(sample, site));
     const before = source.innerHTML;
     checkSample(renderSafe(extractMarkdown(source, site), site));

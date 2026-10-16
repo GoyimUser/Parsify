@@ -24,7 +24,7 @@ export class ChatController {
       if (!document.hidden && this.enabled()) { this.pendingDiscovery = true; this.scanShadows = true; this.schedule(); }
     }, 2000);
   }
-  private enabled() { return this.settings.enabled && (this.settings.sites === "both" || this.settings.sites === this.site); }
+  private enabled() { return this.settings.enabled && (this.settings.sites === "all" || this.settings.sites === this.site); }
   setSettings(settings: Settings) {
     this.settings = settings;
     if (!this.enabled()) {

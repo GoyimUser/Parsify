@@ -12,9 +12,11 @@ function mount() {
   controller?.stop(); chat.replaceChildren();
   const site = (document.getElementById("site") as HTMLSelectElement).value as Site;
   const raw = (document.getElementById("input") as HTMLSelectElement).value === "raw";
-  const turn = document.createElement(site === "studio" ? "ms-chat-turn" : "model-response");
+  const turn = document.createElement(site === "studio" ? "ms-chat-turn" : site === "gemini" ? "model-response" : "article");
   turn.dataset.role = "model";
-  source = document.createElement(site === "studio" ? "ms-cmark-node" : "message-content");
+  if (site === "chatgpt") turn.dataset.messageAuthorRole = "assistant";
+  source = document.createElement(site === "studio" ? "ms-cmark-node" : site === "gemini" ? "message-content" : "div");
+  if (site === "chatgpt") source.dataset.markdownTextStyle = "assistant-message";
   if (raw) source.textContent = sample;
   else {
     source.append(renderSafe(sample));

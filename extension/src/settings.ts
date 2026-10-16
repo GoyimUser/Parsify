@@ -5,12 +5,12 @@ export const choices = {
   mathTextFont: ["B Nazanin", "Vazirmatn", "IRANSans"],
   codeFont: codeFonts,
   codeTheme: ["plum", "midnight"],
-  sites: ["both", "gemini", "studio"],
+  sites: ["all", "gemini", "studio", "chatgpt"],
 } as const;
 export type Settings = { enabled: boolean; codeLigatures: boolean } & { [K in keyof typeof choices]: typeof choices[K][number] };
 export const defaults: Settings = {
   enabled: true, codeLigatures: false, persianFont: "Vazirmatn", englishFont: "Arial",
-  mathTextFont: "B Nazanin", codeFont: "Ubuntu Mono", codeTheme: "plum", sites: "both",
+  mathTextFont: "B Nazanin", codeFont: "Ubuntu Mono", codeTheme: "plum", sites: "all",
 };
 export const STORAGE_KEY = "persianChatReader";
 
@@ -25,6 +25,9 @@ export function normalizeSettings(value: unknown): Settings {
       Object.assign(result, { [key]: input[key] });
     }
   }
+  // "both" was the original Gemini + AI Studio choice. Existing users should
+  // receive the new ChatGPT adapter without having to revisit their settings.
+  if (input.sites === "both") result.sites = "all";
   return result;
 }
 export async function readSettings(): Promise<Settings> {

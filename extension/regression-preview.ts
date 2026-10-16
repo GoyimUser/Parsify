@@ -14,9 +14,11 @@ function mount() {
   clearInterval(timer);
   controller?.stop();
   chat.replaceChildren();
-  const turn = document.createElement(site === "studio" ? "ms-chat-turn" : "model-response");
+  const turn = document.createElement(site === "studio" ? "ms-chat-turn" : site === "gemini" ? "model-response" : "article");
   turn.dataset.role = "model";
-  const source = document.createElement(site === "studio" ? "ms-cmark-node" : "message-content");
+  if (site === "chatgpt") turn.dataset.messageAuthorRole = "assistant";
+  const source = document.createElement(site === "studio" ? "ms-cmark-node" : site === "gemini" ? "message-content" : "div");
+  if (site === "chatgpt") source.dataset.markdownTextStyle = "assistant-message";
   source.innerHTML = `<h2>داشبورد آزمون — متن، فهرست و فرمول</h2>
     <ul><li><p><strong>موقعیت:</strong> سوال [شماره] از 40</p></li>
     <li><p><strong>مبحث:</strong> [گراف / منطق]</p></li>
@@ -68,15 +70,15 @@ $x$ [placeholder]</code></pre>`;
   result.textContent = `${site} · ready`;
 }
 document.querySelector("#site")!.addEventListener("click", event => {
-  site = site === "gemini" ? "studio" : "gemini";
-  (event.target as HTMLElement).textContent = site === "studio" ? "Switch to Gemini" : "Switch to AI Studio";
+  site = site === "gemini" ? "studio" : site === "studio" ? "chatgpt" : "gemini";
+  (event.target as HTMLElement).textContent = `Switch to ${{ gemini: "AI Studio", studio: "ChatGPT", chatgpt: "Gemini" }[site]}`;
   mount();
 });
 document.querySelector("#width")!.addEventListener("click", () => chat.classList.toggle("narrow"));
 document.querySelector("#stream")!.addEventListener("click", () => {
   clearInterval(timer);
   const p = document.createElement("p");
-  chat.querySelector("message-content, ms-cmark-node")!.append(p);
+  chat.querySelector("message-content, ms-cmark-node, [data-markdown-text-style=assistant-message]")!.append(p);
   const text = "توضیح تدریجی [عادی]: فرمول $1.8 + |6| + 7/9$ و پایان.";
   let cursor = 0;
   timer = setInterval(() => {

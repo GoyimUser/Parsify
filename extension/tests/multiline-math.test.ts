@@ -30,12 +30,12 @@ function block(emptyBoundaries = false, brokenSlashes = false) {
   source.append(p);
   return source;
 }
-function output(source: HTMLElement, site: "studio" | "gemini") {
+function output(source: HTMLElement, site: "studio" | "gemini" | "chatgpt") {
   const dom = document.createElement("div");
   dom.append(renderSafe(extractMarkdown(source, site), site));
   return dom;
 }
-describe.each(["studio", "gemini"] as const)("%s multiline math", site => {
+describe.each(["studio", "gemini", "chatgpt"] as const)("%s multiline math", site => {
   it.each([false, true])("recovers complete cases across DOM line breaks (empty boundaries: %s)", boundaries => {
     const source = block(boundaries, true);
     const original = source.innerHTML;

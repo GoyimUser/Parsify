@@ -6,7 +6,7 @@ The shared pipeline in `src/lib/markdown.ts` normalizes Markdown, protects math/
 
 ## Extension boundary
 
-Site adapters locate response containers. Detached-clone extraction protects math/code and rich Markdown; a mutation controller coalesces streaming updates. Sanitized output is style-isolated. Unsupported merged/nested tables or math without recoverable source can remain in the original view. Open shadow roots are observed; closed roots are inaccessible. No Tauri/PDF dependency enters the extension bundle.
+Site adapters locate assistant-response containers for ChatGPT, Gemini and AI Studio. Detached-clone extraction protects math/code and rich Markdown; a mutation controller coalesces streaming updates. Sanitized output is style-isolated. Unsupported merged/nested tables or math without recoverable source can remain in the original view. Open shadow roots are observed; closed roots are inaccessible. No Tauri/PDF dependency enters the extension bundle.
 
 ## PDF boundaries
 

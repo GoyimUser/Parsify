@@ -35,7 +35,7 @@ describe("common language code rendering", () => {
     expect(result.querySelector("pre code")?.textContent).toBe(code + "\n");
     expect(result.querySelector('[class*="hljs-"]')).not.toBeNull();
   });
-  it.each(["gemini", "studio"] as const)("round-trips %s native code wrappers without changing prose", site => {
+  it.each(["gemini", "studio", "chatgpt"] as const)("round-trips %s native code wrappers without changing prose", site => {
     const source = document.createElement("div");
     source.innerHTML = '<p>نثر <em>تأکید</em> <code>inline(16)</code></p><blockquote>نقل قول</blockquote><ms-code-block><mat-expansion-panel-header><span class="title-text">Python</span></mat-expansion-panel-header><pre><code>def f():\n    # سلام\n    return 16</code></pre></ms-code-block>';
     const before = source.innerHTML;

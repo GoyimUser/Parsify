@@ -1,15 +1,19 @@
 # Parsify — Persian Chat Reader
 
-Manifest V3 extension for Gemini and Google AI Studio, sharing the desktop application's `src/lib/markdown.ts` renderer. No PDF code, background service, remote scripts, analytics, network interception, or chat storage. The sole API permission is `storage`; content scripts run only on the two supported Google sites.
+Manifest V3 extension for ChatGPT, Gemini and Google AI Studio, sharing the desktop application's `src/lib/markdown.ts` renderer. No PDF code, background service, remote scripts, analytics, network interception, or chat storage. The sole API permission is `storage`; content scripts run only on the three supported chat sites.
 
 ## Build and load
 
 From the application directory: `pnpm install --frozen-lockfile`, `pnpm extension:build`.
-In Chrome open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose this `dist` directory. Refresh any already-open Gemini/AI Studio chats after first installation. Pin the extension to open its popup. Full settings include a live typography preview.
+In Chrome open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose this `dist` directory. Refresh any already-open ChatGPT, Gemini or AI Studio chats after first installation. Pin the extension to open its popup. Full settings include a live typography preview.
 
 `pnpm extension:test` runs adapter, extraction, security, streaming, and settings checks. `pnpm test` also runs desktop renderer regression tests. `pnpm extension:preview` serves the development UI at `/extension/dist/options.html`.
 
 ## Behavior and architecture
+
+### ChatGPT adapter (1.1.3)
+
+ChatGPT is supported through its assistant-only rich-response marker rather than broad `div`, `article` or generic Markdown selectors. This avoids the composer, prompts, action controls and user turns. Existing `Gemini & AI Studio` preferences migrate automatically to the new all-sites default. See [the adapter validation record](../docs/CHATGPT-ADAPTER-QA.md) for the current live DOM boundary and test scope.
 
 ### Rich prose / math boundary correction (1.1.2)
 
