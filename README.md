@@ -20,7 +20,7 @@ Parsify is a local-first Persian Markdown reader and AI-chat enhancement toolkit
 | Android | Touch-friendly viewer/editor, paper size/orientation/margin controls, native printing | Android 7+ ARM64 APK |
 | Chrome | Streaming response enhancement, original/enhanced views, per-site settings | Manifest V3 unpacked ZIP, Chrome 120+ |
 
-The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.4** contains the language-aware ChatGPT rich-text adapter (component **1.3.0**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
+The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.5** contains the compact ChatGPT typography and native-table correction (component **1.3.1**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
 
 ## Features
 
@@ -41,7 +41,7 @@ The extension has **no PDF export**. Native app titles and identifiers retain **
 
 *Local synthetic fixture, not a private or live Google chat; the table is scrolled to its leftmost columns.*
 
-Download the [latest Chrome extension](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.4) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
+Download the [latest Chrome extension](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.5) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
 
 ### Windows
 
@@ -63,7 +63,7 @@ This is a **development-signed sideload build**, not a Play Store production rel
 
 ### Chrome extension
 
-1. Extract `Parsify-v0.1.4-chrome-extension.zip` into a permanent folder.
+1. Extract `Parsify-v0.1.5-chrome-extension.zip` into a permanent folder.
 2. Open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the folder containing `manifest.json`.
 3. Refresh ChatGPT / Gemini / AI Studio tabs. Use the Parsify popup or options page to enable sites and customize fonts, code theme and ligatures.
 4. Gemini and AI Studio retain the original/enhanced toggle. On ChatGPT, Parsify enhances safe prose in place and deliberately keeps native quizzes, diagrams and controls interactive. Disabling enhancements restores all original content.

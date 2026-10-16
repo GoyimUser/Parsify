@@ -5,10 +5,18 @@
  * They improve Persian text inside native components without changing the
  * component layout, SVG geometry, event handlers, or quiz state.
  */
+/* Citation-bearing paragraphs are intentionally kept in ChatGPT's native
+ * renderer, because their source chips are interactive. Apply typography to
+ * the marked root too (not just descendants): the root is often the <p>.
+ * Code and diagrams remain excluded so their geometry and monospace faces are
+ * wholly owned by ChatGPT. */
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"]:not([data-pmv-native-kind="table"]):not([data-pmv-native-kind="diagram"]):not(:has(pre, code, [data-d-component="code"])) {
+  font-family:var(--pmv-persian-font, "Vazirmatn", sans-serif)!important;
+}
+
 [data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"] :is(
-  p, h1, h2, h3, h4, h5, h6, li, blockquote, th, td, label, figcaption,
-  [data-d-component="text"], [data-d-component="title"],
-  [role="radio"], button
+  p, h1, h2, h3, h4, h5, h6, li, blockquote, th, td, label, figcaption, a,
+  [data-d-component="text"], [data-d-component="title"]
 ) {
   font-family: var(--pmv-persian-font, "Vazirmatn", sans-serif);
 }
@@ -32,15 +40,40 @@
 /* Native result tables retain ChatGPT's semantics and layout. The wrapper is
  * made safely scrollable on narrow viewports without making it a custom table. */
 [data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] {
+  display:block;
+  width:100%;
   max-width: 100%;
+  min-width:0;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
+  margin-inline:auto;
 }
 
 [data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] table {
   direction: rtl;
   text-align: start;
+  /* Auto-width tables use fit-content, which is why native ChatGPT tables
+     collapsed to a tiny right-aligned strip. Stretch smaller tables to the
+     response width; let genuinely wide tables keep their intrinsic width and
+     scroll inside this wrapper. */
+  width:max-content!important;
+  min-width:100%!important;
+  max-width:none!important;
+  margin-inline:auto!important;
+  table-layout:auto;
+}
+
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] :is(caption, th, td) {
+  font-family:var(--pmv-persian-font, "Vazirmatn", sans-serif)!important;
+}
+
+/* Preserve useful column measure instead of letting wide native tables shrink
+ * every cell down to a narrow, unreadable strip. The enclosing region takes
+ * responsibility for overflow, so this produces a normal full-width table on
+ * desktop and an intentional horizontal scroll on small screens. */
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] :is(th, td) {
+  min-inline-size:7rem;
 }
 
 /* Do not inject direction into diagrams themselves: arrows, axes and SVG

@@ -1,6 +1,6 @@
-# ChatGPT hybrid validation — v0.1.4
+# ChatGPT hybrid validation — v0.1.5
 
-Extension component **1.3.0** keeps the native-safe hybrid boundary while restoring ChatGPT rich-text semantics and applying Persian transformations only where the segment's language requires them.
+Extension component **1.3.1** keeps the native-safe hybrid boundary while restoring ChatGPT rich-text semantics and applying Persian transformations only where the segment's language requires them.
 
 ## Boundary model
 
@@ -13,6 +13,9 @@ The production controller now follows this rule:
 - A block with Persian/Arabic-script prose uses the Persian path. Its rich Markdown semantics, selected Persian font, RTL prose and Yas math digits are preserved. A fully English block is not mounted in a shadow view and receives no Persian direction, font or digit changes.
 - A standalone equation is neutral until it inherits the language of the nearest direct explanatory sibling. Thus a Persian equation gets Persian math digits without forcing an adjacent English formula into Persian typography.
 - Any other block is left in ChatGPT's own DOM. Its event handlers, selection state, geometry and component semantics are untouched. Scoped CSS supplies the selected Persian font only to Persian labels in native components, preserves RTL text for Persian quiz choices and makes Persian native tables horizontally scrollable on narrow screens without replacing their markup.
+- Detached Persian segments capture ChatGPT's original font size, line height, weight, spacing and block margins before their native source is hidden. Compact shadow-root CSS then removes the desktop-reader heading/list/paragraph margins that previously compounded around every response block.
+- Citation-bearing Persian paragraphs remain native because source chips are interactive; the marked root itself receives the selected Persian font, while an English source-control label remains under ChatGPT's own styling.
+- Native Persian tables now occupy the response column when small and keep a readable minimum cell measure when wide. Their original markup remains in place, and the existing native wrapper becomes the horizontal scroll region rather than permitting a collapsed right-aligned table.
 
 This is intentionally conservative: if a response shape is unfamiliar or a TeX source cannot be recovered, it remains native rather than being hidden or flattened.
 
@@ -29,14 +32,15 @@ This is intentionally conservative: if a response shape is unfamiliar or a TeX s
 - selected Persian font propagation to the native response root;
 - clean restoration when Parsify is disabled;
 - safe fallback when a streaming prose block acquires an interactive control.
+- compact ChatGPT source-metric transfer plus citation-bearing Persian native blocks.
 
 The complete extension suite passed with **128 tests across 6 suites**.
 
 ## Visual and live checks
 
-The public `extension/chatgpt-hybrid-preview.html` fixture was inspected in Chrome. Its verifier passed while showing enhanced Persian headings, bold/italic prose, Yas-rendered math digits and a centered LTR display formula. An English heading, paragraph and equation stayed native/LTR with Latin digits. A native diagram, two available quiz radios and a native table also stayed in place.
+The public `extension/chatgpt-hybrid-preview.html` fixture was inspected through Chromium at desktop and 412 px mobile widths. Its verifier passed while showing compact enhanced Persian headings, bold/italic prose, Yas-rendered math digits and a centered LTR display formula. An English heading, paragraph and equation stayed native/LTR with Latin digits. A native diagram, two available quiz radios, a citation-bearing Persian paragraph and a native table also stayed in place.
 
-At a 390 px viewport, the page had no horizontal overflow. The native table measured 560 px scroll width inside a 297 px `overflow-x:auto` container, while the quiz remained RTL and interactive. The live ChatGPT DOM boundary was inspected read-only; no messages, quiz answers or account settings were modified.
+At a 412 px viewport, the table wrapper measured 334 px while its content measured 1119 px; both rightmost and leftmost columns were visually verified through RTL horizontal scrolling. The quiz remained RTL and interactive. The live ChatGPT DOM boundary was inspected read-only; no messages, quiz answers or account settings were modified.
 
 ## Scope
 

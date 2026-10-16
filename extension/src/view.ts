@@ -54,10 +54,45 @@ export type ReaderView = {
   host: HTMLDivElement;
   article: HTMLElement;
   ready: Promise<unknown>;
+  /** Re-read compact source metrics for ChatGPT streaming segments. */
+  refreshSourceMetrics(): void;
   update(markdown: string): void;
   activate(): void;
   destroy(): void;
 };
+
+/**
+ * ChatGPT applies its typography to each direct response child. A shadow-root
+ * sibling does not participate in those selectors, so copy only the inherited
+ * metrics that define the original block's rhythm. This deliberately excludes
+ * font-family: Persian segments need the user's selected Persian font instead.
+ */
+function syncChatGPTSourceMetrics(source: HTMLElement, host: HTMLElement) {
+  const computed = getComputedStyle(source);
+  const metrics: ReadonlyArray<readonly [string, string]> = [
+    ["--pmv-chatgpt-font-size", computed.fontSize],
+    ["--pmv-chatgpt-line-height", computed.lineHeight],
+    ["--pmv-chatgpt-font-weight", computed.fontWeight],
+    ["--pmv-chatgpt-font-style", computed.fontStyle],
+    ["--pmv-chatgpt-letter-spacing", computed.letterSpacing],
+    ["--pmv-chatgpt-text-align", computed.textAlign],
+  ];
+  for (const [name, value] of metrics) {
+    if (value) host.style.setProperty(name, value);
+  }
+
+  // Direct children receive ChatGPT's block rhythm through utility classes.
+  // Preserve those exact margins on the sibling host; reader.css supplies no
+  // extra outer gap in compact mode.
+  for (const [property, value] of [
+    ["margin-block-start", computed.marginBlockStart],
+    ["margin-block-end", computed.marginBlockEnd],
+    ["margin-inline-start", computed.marginInlineStart],
+    ["margin-inline-end", computed.marginInlineEnd],
+  ] as const) {
+    if (value) host.style.setProperty(property, value);
+  }
+}
 
 export function createView(
   source: HTMLElement,
@@ -68,9 +103,16 @@ export function createView(
 ): ReaderView {
   const controls = options.controls ?? true;
   const language = options.language ?? "persian";
+  const chatGPTSegment = site === "chatgpt" && !controls;
   const host = document.createElement("div");
   host.className = "pmv-host";
   host.style.cssText = "display:block;min-width:0;max-width:100%;";
+  if (chatGPTSegment) {
+    host.dataset.pmvChatgptCompact = "true";
+    // Must happen before activate() hides source. Later stream updates can
+    // refresh the values only while ChatGPT has made a source block visible.
+    syncChatGPTSourceMetrics(source, host);
+  }
   if (site === "gemini") {
     // Gemini's outer response spans the viewport; its native Markdown children
     // individually opt into a centered column. A sibling shadow host does not
@@ -95,7 +137,7 @@ export function createView(
     shadow.append(link);
   })));
   const article = document.createElement("article");
-  article.className = `reader reader-language-${language}`;
+  article.className = `reader reader-language-${language}${chatGPTSegment ? " reader-chatgpt" : ""}`;
   article.dir = language === "persian" ? "rtl" : "ltr";
   article.lang = language === "persian" ? "fa" : "en";
   applySettings(article, settings);
@@ -163,7 +205,14 @@ export function createView(
     patchBlocks(article, fragment);
   }
   return {
-    host, article, ready, update,
+    host, article, ready,
+    refreshSourceMetrics() {
+      // A hidden source has no reliable computed font metrics. Its initial
+      // values remain correct, and are intentionally retained until a future
+      // visible stream update supplies fresh values.
+      if (chatGPTSegment && getComputedStyle(source).display !== "none") syncChatGPTSourceMetrics(source, host);
+    },
+    update,
     activate() { active = true; sync(); },
     destroy() { showSource(); host.remove(); },
   };

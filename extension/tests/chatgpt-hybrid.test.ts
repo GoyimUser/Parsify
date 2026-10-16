@@ -22,9 +22,10 @@ const hybridResponse = `
     <h4 data-conversation-role="assistant">ChatGPT said:</h4>
     <div data-markdown-text-style="assistant-message">
       <div data-dil-message-id="lesson-1">
-        <h2 data-d-component="title">آزمون کوتاه مفهومی</h2>
-        <p data-d-component="text" id="safe-prose">فرمول $1.8 + |6| + 7/9$ را با دقت بخوانید.</p>
+        <h2 data-d-component="title" id="compact-heading" style="font-size:18px;line-height:28px;font-weight:700;margin:24px 0">آزمون کوتاه مفهومی</h2>
+        <p data-d-component="text" id="safe-prose" style="font-size:16px;line-height:26px;font-weight:500;margin:16px 0">فرمول $1.8 + |6| + 7/9$ را با دقت بخوانید.</p>
         <div data-d-component="text" id="rich-prose">این <span data-d-component="strong">بخش پررنگ</span> و <span style="font-style: italic">بخش کج</span> است: $1.8 + |6|$</div>
+        <p data-d-component="text" id="persian-citation">این پاراگراف فارسی منبع دارد <button role="button">Reference source</button>.</p>
         <div data-d-component="math" id="persian-display-math"><span data-math="x_1 = 1.8 + |6| + \\frac{7}{9}" data-display="true">x₁ = 1.8 + |6| + 7/9</span></div>
         <p data-d-component="text" id="latin-prose"><strong>Entirely English 16</strong> stays native: $1.8 + |6| + 7/9$.</p>
         <div data-d-component="math" id="latin-display-math"><span data-math="x_1 = 1.8 + |6| + \\frac{7}{9}" data-display="true">x₁ = 1.8 + |6| + 7/9</span></div>
@@ -63,6 +64,7 @@ describe("ChatGPT hybrid boundaries", () => {
     const quiz = root.querySelector<HTMLElement>("#native-quiz")!;
     const diagram = root.querySelector<HTMLElement>("#native-diagram")!;
     const table = root.querySelector<HTMLElement>("#native-table")!;
+    const citation = root.querySelector<HTMLElement>("#persian-citation")!;
     expect(isSafeChatGPTTextBlock(prose)).toBe(true);
     expect(isSafeChatGPTTextBlock(quote)).toBe(true);
     expect(isSafeChatGPTTextBlock(rich)).toBe(true);
@@ -72,16 +74,19 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(isSafeChatGPTTextBlock(quiz)).toBe(false);
     expect(isSafeChatGPTTextBlock(diagram)).toBe(false);
     expect(isSafeChatGPTTextBlock(table)).toBe(false);
+    expect(isSafeChatGPTTextBlock(citation)).toBe(false);
   });
 
   it("enhances safe Persian prose while preserving native quizzes, diagrams and tables", async () => {
     document.body.innerHTML = hybridResponse;
     const root = document.querySelector<HTMLElement>('[data-markdown-text-style="assistant-message"]')!;
+    const heading = document.querySelector<HTMLElement>("#compact-heading")!;
     const prose = document.querySelector<HTMLElement>("#safe-prose")!;
     const quote = document.querySelector<HTMLElement>("#safe-quote")!;
     const quiz = document.querySelector<HTMLElement>("#native-quiz")!;
     const diagram = document.querySelector<HTMLElement>("#native-diagram")!;
     const table = document.querySelector<HTMLElement>("#native-table")!;
+    const citation = document.querySelector<HTMLElement>("#persian-citation")!;
     const initialRadioStates = Array.from(quiz.querySelectorAll("[role=radio]"), radio => radio.getAttribute("data-state"));
 
     controller = new ChatGPTHybridController(defaults, file => file);
@@ -91,6 +96,14 @@ describe("ChatGPT hybrid boundaries", () => {
     const proseHost = prose.nextElementSibling as HTMLElement;
     expect(proseHost.classList.contains("pmv-host")).toBe(true);
     expect(proseHost.dataset.pmvChatgptSegment).toBe("true");
+    expect(proseHost.dataset.pmvChatgptCompact).toBe("true");
+    expect(proseHost.style.getPropertyValue("--pmv-chatgpt-font-size")).toBe("16px");
+    expect(proseHost.style.getPropertyValue("--pmv-chatgpt-line-height")).toBe("26px");
+    expect(proseHost.shadowRoot?.querySelector(".reader")?.classList.contains("reader-chatgpt")).toBe(true);
+    const headingHost = heading.nextElementSibling as HTMLElement;
+    expect(headingHost.style.getPropertyValue("--pmv-chatgpt-font-size")).toBe("18px");
+    expect(headingHost.style.getPropertyValue("--pmv-chatgpt-line-height")).toBe("28px");
+    expect(headingHost.style.getPropertyValue("--pmv-chatgpt-font-weight")).toBe("700");
     expect(prose.style.display).toBe("none");
     expect(quote.style.display).toBe("none");
     expect(proseHost.shadowRoot?.querySelector(".reader-tools")).toBeNull();
@@ -106,6 +119,10 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(quiz.querySelector(".pmv-host")).toBeNull();
     expect(diagram.dataset.pmvNativeKind).toBe("diagram");
     expect(table.dataset.pmvNativeKind).toBe("table");
+    expect(citation.style.display).toBe("");
+    expect(citation.classList.contains("pmv-chatgpt-native")).toBe(true);
+    expect(citation.dataset.pmvNativeKind).toBe("interactive");
+    expect(citation.dataset.pmvLanguage).toBe("persian");
     expect(root.dataset.pmvChatgptHybrid).toBe("true");
     expect(root.style.getPropertyValue("--pmv-persian-font")).toContain("Vazirmatn");
     expect(root.getAttribute("lang")).toBeNull();

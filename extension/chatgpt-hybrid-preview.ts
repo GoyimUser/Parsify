@@ -17,6 +17,7 @@ async function verify() {
   const quiz = document.querySelector<HTMLElement>("#quiz")!;
   const diagram = document.querySelector<HTMLElement>("#diagram")!;
   const table = document.querySelector<HTMLElement>("#native-table")!;
+  const citation = document.querySelector<HTMLElement>("#citation")!;
   const introView = intro.nextElementSibling as HTMLElement | null;
   const richView = rich.nextElementSibling as HTMLElement | null;
   const persianEquationView = persianEquation.nextElementSibling as HTMLElement | null;
@@ -38,9 +39,14 @@ async function verify() {
     && quiz.querySelectorAll("[role=radio]").length === 2
     && !quiz.querySelector(".pmv-host")
     && diagram.dataset.pmvNativeKind === "diagram"
-    && table.dataset.pmvNativeKind === "table";
+    && table.dataset.pmvNativeKind === "table"
+    && citation.dataset.pmvNativeKind === "interactive"
+    && citation.dataset.pmvLanguage === "persian"
+    && getComputedStyle(citation).fontFamily.includes("Vazirmatn")
+    && table.clientWidth >= Math.floor(table.parentElement!.clientWidth * .98)
+    && table.scrollWidth >= table.clientWidth;
   result.textContent = pass
-    ? "PASS · Persian rich text/math enhanced; English, quiz, diagram and table remain native"
+    ? "PASS · compact Persian typography; citation font, native table width, English and native components verified"
     : "FAIL · inspect hybrid boundaries";
   result.style.color = pass ? "#0b7b48" : "#b42318";
 }

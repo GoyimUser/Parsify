@@ -325,6 +325,7 @@ export class ChatGPTHybridController {
       if (!segment.dirty) continue;
       segment.dirty = false;
       try {
+        segment.view.refreshSourceMetrics();
         const markdown = extractMarkdown(source, "chatgpt");
         if (markdown !== segment.markdown) { segment.view.update(markdown); segment.markdown = markdown; }
       } catch {
