@@ -9,6 +9,7 @@ import { visit } from "unist-util-visit";
 import { toPersianDigits } from "./digits";
 import { commonLanguageTitle, highlightCommonCode } from "./code-highlight";
 import { rehypeResponsiveTables } from "./tables";
+import { hasPersianScript } from "./language";
 
 const MATH_PIPE_SENTINEL = "\uE000";
 const DISPLAY_ENVIRONMENTS = new Set([
@@ -281,10 +282,6 @@ function remarkPersianProseDigits() {
   return (tree: unknown) => {
     visit(tree as never, "text", (node: any) => { node.value = toPersianDigits(node.value); });
   };
-}
-
-function hasPersianScript(value: string) {
-  return /[\u0600-\u06FF]/.test(value);
 }
 
 function replaceUnescapedImplies(value: string) {
@@ -564,20 +561,51 @@ function rehypeOpenZeroDigits() {
   };
 }
 
-const processor = unified()
-  .use(remarkParse).use(remarkGfm).use(remarkMath)
-  .use(remarkRestoreMathPipes).use(remarkNormalizePersianHamza).use(remarkPersianMathDirection).use(remarkPersianProseDigits)
-  .use(remarkRehype)
-  .use(rehypeEnglishProse)
-  // rehype-katex derives displayMode: true from remark-math's `math-display` class.
-  .use(rehypeKatex, { strict: "ignore", trust: false })
-  .use(rehypeDisplayMathDirection)
-  .use(rehypeFencedCodeDirection)
-  .use(rehypePersianMathText).use(rehypeOpenZeroDigits).use(rehypeStringify);
+/**
+ * Keep the Latin pipeline genuinely Latin.  ChatGPT messages are not a
+ * document-wide language switch: a fully English response fragment must not
+ * acquire RTL direction, Persian digit glyphs, or a mirrored implication.
+ * Persian and mixed fragments retain the established Persian pipeline.
+ */
+function createMarkdownProcessor(persian: boolean, responsiveTables = false) {
+  const pipeline = unified()
+    .use(remarkParse).use(remarkGfm).use(remarkMath)
+    .use(remarkRestoreMathPipes);
 
-const nativeProcessor = processor().use(rehypeResponsiveTables);
+  if (persian) {
+    pipeline
+      .use(remarkNormalizePersianHamza)
+      .use(remarkPersianMathDirection)
+      .use(remarkPersianProseDigits);
+  }
 
-export function renderMarkdown(markdown: string, options: { canonicalMath?: boolean; preserveMathIndentation?: boolean; responsiveTables?: boolean } = {}): string {
+  pipeline
+    .use(remarkRehype)
+    .use(rehypeEnglishProse)
+    // rehype-katex derives displayMode: true from remark-math's `math-display` class.
+    .use(rehypeKatex, { strict: "ignore", trust: false })
+    .use(rehypeDisplayMathDirection)
+    .use(rehypeFencedCodeDirection);
+
+  if (persian) pipeline.use(rehypePersianMathText).use(rehypeOpenZeroDigits);
+  if (responsiveTables) pipeline.use(rehypeResponsiveTables);
+  return pipeline.use(rehypeStringify);
+}
+
+const persianProcessor = createMarkdownProcessor(true);
+const latinProcessor = createMarkdownProcessor(false);
+const persianNativeProcessor = createMarkdownProcessor(true, true);
+const latinNativeProcessor = createMarkdownProcessor(false, true);
+
+export type RenderMarkdownOptions = {
+  canonicalMath?: boolean;
+  preserveMathIndentation?: boolean;
+  responsiveTables?: boolean;
+  /** Defaults to true for the desktop/mobile Persian document viewer. */
+  persian?: boolean;
+};
+
+export function renderMarkdown(markdown: string, options: RenderMarkdownOptions = {}): string {
   // DOM adapters have already identified equations. Reinterpreting their
   // Markdown escapes as TeX destroys ordinary bracketed prose.
   // Native document input retains its existing delimiter normalization.
@@ -588,5 +616,9 @@ export function renderMarkdown(markdown: string, options: { canonicalMath?: bool
   const displayNormalized = options.canonicalMath || options.preserveMathIndentation ? latexNormalized : normalizeDisplayMathDelimiters(latexNormalized);
   const arrayNormalized = normalizeArrayColumnPreambles(displayNormalized);
   const environmentNormalized = options.canonicalMath ? arrayNormalized : normalizeStandaloneDisplayMath(arrayNormalized);
-  return String((options.responsiveTables ? nativeProcessor : processor).processSync(shieldInlineMathPipes(environmentNormalized)));
+  const persian = options.persian ?? true;
+  const processor = options.responsiveTables
+    ? (persian ? persianNativeProcessor : latinNativeProcessor)
+    : (persian ? persianProcessor : latinProcessor);
+  return String(processor.processSync(shieldInlineMathPipes(environmentNormalized)));
 }

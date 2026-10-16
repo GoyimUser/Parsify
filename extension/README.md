@@ -11,9 +11,9 @@ In Chrome open `chrome://extensions`, enable Developer mode, select **Load unpac
 
 ## Behavior and architecture
 
-### ChatGPT hybrid adapter (1.2.0)
+### ChatGPT language-aware rich-text adapter (1.3.0)
 
-ChatGPT is supported through its assistant-only rich-response marker rather than broad `div`, `article` or generic Markdown selectors. Its current responses can interleave ordinary Markdown with diagrams, media, tables and interactive quizzes. The hybrid adapter therefore enhances only direct semantic text blocks that have no visual or interactive descendants. Native islands stay mounted in place under ChatGPT's own renderer, preserving radio state, buttons, SVG geometry and React event handlers while applying scoped Persian typography to their labels. Existing `Gemini & AI Studio` preferences migrate automatically to the new all-sites default. See [the hybrid validation record](../docs/CHATGPT-HYBRID-QA.md) for the current live DOM boundary and test scope.
+ChatGPT is supported through its assistant-only rich-response marker rather than broad `div`, `article` or generic Markdown selectors. Its current responses can interleave Markdown-like rich text with diagrams, media, tables and interactive quizzes. The adapter normalizes detached ChatGPT rich-text wrappers into semantic headings, paragraphs, bold, emphasis, strike-through, lists and quotes before Markdown conversion, so those semantics survive the shared renderer. It then applies Parsify only to Persian or mixed blocks; fully English text and formulas retain ChatGPT's native DOM, direction, digits and fonts. Math-only blocks inherit the language of their adjacent explanatory prose. Native islands stay mounted in place under ChatGPT's own renderer, preserving radio state, buttons, SVG geometry and React event handlers while applying scoped Persian typography only to Persian labels. Existing `Gemini & AI Studio` preferences migrate automatically to the new all-sites default. See [the hybrid validation record](../docs/CHATGPT-HYBRID-QA.md) for the current live DOM boundary and test scope.
 
 ### Rich prose / math boundary correction (1.1.2)
 

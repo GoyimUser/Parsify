@@ -1,6 +1,6 @@
 # Validation and limitations
 
-For the extension-only v0.1.3 ChatGPT hybrid release (component 1.2.0), see
+For the extension-only v0.1.4 ChatGPT language-aware rich-text release (component 1.3.0), see
 [the ChatGPT hybrid validation record](CHATGPT-HYBRID-QA.md). The v0.1.2
 [adapter validation record](CHATGPT-ADAPTER-QA.md) and the v0.1.1
 [rich prose / math regression validation](RENDERING-REGRESSION-QA.md) remains

@@ -6,9 +6,101 @@ import { protectRawMathDom } from "./math-dom";
 
 export class UnsupportedContent extends Error {}
 
+const CHATGPT_INLINE_COMPONENTS: Record<string, string> = {
+  bold: "strong",
+  strong: "strong",
+  emphasis: "em",
+  em: "em",
+  italic: "em",
+  strikethrough: "del",
+  strike: "del",
+  "inline-code": "code",
+};
+const CHATGPT_BLOCK_COMPONENTS: Record<string, string> = {
+  title: "h2",
+  heading: "h2",
+  paragraph: "p",
+  quote: "blockquote",
+  list: "ul",
+  "ordered-list": "ol",
+  "list-item": "li",
+};
+const BLOCK_DESCENDANTS = "p,h1,h2,h3,h4,h5,h6,ul,ol,li,blockquote,pre,table,section,article";
+
+function replaceTag(element: HTMLElement, tagName: string) {
+  const replacement = element.ownerDocument.createElement(tagName);
+  replacement.append(...Array.from(element.childNodes));
+  return replacement;
+}
+
+function isChatGPTRichTextCandidate(element: HTMLElement) {
+  return !element.closest("pre, code, .katex, .katex-display, math, [data-math], [data-latex]");
+}
+
+/**
+ * ChatGPT's rich-response renderer often uses data-component wrappers and
+ * CSS-styled spans instead of literal strong/em/p tags.  Turndown can only
+ * preserve semantics it can see, so normalise those *detached* wrappers
+ * before conversion.  This never writes to React's live response tree.
+ */
+function normalizeChatGPTRichText(clone: HTMLElement): HTMLElement {
+  let root = clone;
+  const elements = (selector: string) => [
+    ...(root.matches(selector) ? [root] : []),
+    ...Array.from(root.querySelectorAll<HTMLElement>(selector)),
+  ];
+  const replace = (element: HTMLElement, tagName: string) => {
+    const replacement = replaceTag(element, tagName);
+    if (element === root) root = replacement;
+    else element.replaceWith(replacement);
+    return replacement;
+  };
+
+  // Work inside-out so a styled child remains a child when its block wrapper
+  // is promoted to a semantic heading or paragraph.
+  for (const element of elements("[data-d-component]").reverse()) {
+    if (!isChatGPTRichTextCandidate(element)) continue;
+    const component = element.dataset.dComponent?.trim().toLowerCase() ?? "";
+    const inlineTag = CHATGPT_INLINE_COMPONENTS[component];
+    const blockTag = CHATGPT_BLOCK_COMPONENTS[component];
+    if (inlineTag) {
+      replace(element, inlineTag);
+    } else if (blockTag && !/^H[1-6]$/.test(element.tagName) && !new RegExp(`^${blockTag}$`, "i").test(element.tagName)) {
+      replace(element, blockTag);
+    } else if (component === "text" && element.tagName === "DIV" && !element.querySelector(BLOCK_DESCENDANTS)) {
+      replace(element, "p");
+    }
+  }
+
+  // Recent responses can expose heading hierarchy via ARIA instead of a
+  // literal heading tag.  Retain that hierarchy in Markdown rather than
+  // flattening it to a paragraph.
+  for (const element of elements('[role="heading"][aria-level]').reverse()) {
+    if (!isChatGPTRichTextCandidate(element) || /^H[1-6]$/.test(element.tagName)) continue;
+    const level = Math.min(6, Math.max(1, Number(element.getAttribute("aria-level")) || 2));
+    replace(element, `h${level}`);
+  }
+
+  // Rich inline emphasis may be represented by a span with inline CSS.  Map
+  // only well-defined Markdown equivalents and retain nesting/word order.
+  for (const element of elements("span[style], div[style]").reverse()) {
+    if (!isChatGPTRichTextCandidate(element)) continue;
+    const weight = element.style.fontWeight.trim().toLowerCase();
+    const weightNumber = Number.parseInt(weight, 10);
+    const bold = weight === "bold" || weight === "bolder" || (!Number.isNaN(weightNumber) && weightNumber >= 600);
+    const italic = /italic|oblique/.test(element.style.fontStyle);
+    const strike = /line-through/.test(element.style.textDecorationLine || element.style.textDecoration);
+    let replacement = element;
+    if (strike) replacement = replace(replacement, "del");
+    if (italic) replacement = replace(replacement, "em");
+    if (bold) replace(replacement, "strong");
+  }
+  return root;
+}
+
 /** Work exclusively on detached clones; the site's streaming DOM is never rewritten. */
 export function extractMarkdown(source: HTMLElement, site?: Site): string {
-  const clone = source.cloneNode(true) as HTMLElement;
+  let clone = source.cloneNode(true) as HTMLElement;
   // Complex interactive outputs are better served by the original view.
   if (clone.querySelector('iframe, canvas, video, audio, input:not([type="checkbox"]), textarea, [contenteditable="true"]')) {
     throw new UnsupportedContent("Interactive response");
@@ -24,6 +116,7 @@ export function extractMarkdown(source: HTMLElement, site?: Site): string {
       span.replaceWith(emphasis);
     }
   }
+  if (site === "chatgpt") clone = normalizeChatGPTRichText(clone);
   // A layout pre is not proof of a Markdown code fence. Accept semantic
   // pre > code or a site's explicit code component, never generic prose.
   for (const pre of clone.querySelectorAll("pre")) {
@@ -137,7 +230,12 @@ export function extractMarkdown(source: HTMLElement, site?: Site): string {
     },
   });
   protectDomTables(clone, converter, preserve);
-  let markdown = converter.turndown(clone);
+  // Turndown treats its input node as a transparent container.  Wrap a
+  // semantic root (for example a direct ChatGPT `h2` or `blockquote`) so
+  // that its own Markdown rule is applied instead of flattening it to text.
+  const conversionRoot = clone.ownerDocument.createElement("div");
+  conversionRoot.append(clone);
+  let markdown = converter.turndown(conversionRoot);
   // A callback avoids String.replace interpreting TeX's $$ as a replacement escape.
   for (const [placeholder, value] of fragments) markdown = markdown.replaceAll(placeholder, () => value);
   return markdown;

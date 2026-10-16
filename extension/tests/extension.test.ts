@@ -37,6 +37,40 @@ describe("extension content extraction and rendering", () => {
     expect(output.textContent).not.toContain("duplicated rendering");
     expect(source.innerHTML).toBe(before);
   });
+  it("preserves ChatGPT rich-text wrappers as Markdown emphasis and heading semantics", () => {
+    const source = element('<div data-d-component="text">این <span data-d-component="strong">بخش پررنگ</span> و <span style="font-style:italic">بخش کج</span> است؛ <span class="katex"><math><semantics><annotation encoding="application/x-tex">1.8 + |6|</annotation></semantics></math></span></div>');
+    const before = source.innerHTML;
+    const markdown = extractMarkdown(source, "chatgpt");
+    const output = document.createElement("div");
+    output.append(renderSafe(markdown, "chatgpt", "persian"));
+
+    expect(markdown).toContain("**بخش پررنگ**");
+    expect(markdown).toContain("_بخش کج_");
+    expect(output.querySelector("strong")?.textContent).toBe("بخش پررنگ");
+    expect(output.querySelector("em")?.textContent).toBe("بخش کج");
+    expect(output.querySelector(".katex-html")?.textContent).toContain("۱.۸");
+    expect(source.innerHTML).toBe(before);
+  });
+  it("keeps a direct ChatGPT heading or quote as a semantic root instead of flattening it", () => {
+    const heading = element('<h2 data-d-component="title">تیتر <strong>پررنگ</strong></h2>').firstElementChild as HTMLElement;
+    const quote = element('<blockquote data-d-component="quote">نکتۀ <strong>مهم</strong></blockquote>').firstElementChild as HTMLElement;
+    const headingOutput = document.createElement("div");
+    const quoteOutput = document.createElement("div");
+    headingOutput.append(renderSafe(extractMarkdown(heading, "chatgpt"), "chatgpt", "persian"));
+    quoteOutput.append(renderSafe(extractMarkdown(quote, "chatgpt"), "chatgpt", "persian"));
+
+    expect(headingOutput.querySelector("h2 strong")?.textContent).toBe("پررنگ");
+    expect(quoteOutput.querySelector("blockquote strong")?.textContent).toBe("مهم");
+  });
+  it("does not run Persian transformations in an explicitly Latin ChatGPT segment", () => {
+    const output = document.createElement("div");
+    output.append(renderSafe(String.raw`**Bold 16** and $1.8 + |6| + \frac{7}{9}$.`, "chatgpt", "latin"));
+
+    expect(output.querySelector(".persian-math-digit")).toBeNull();
+    expect(output.textContent).toContain("Bold 16");
+    expect(output.textContent).toMatch(/1\.8/);
+    expect(output.textContent).not.toMatch(/[۰-۹]/);
+  });
   it("preserves raw array backslashes, row separators, and display style", () => {
     const source = document.createElement("div");
     source.textContent = String.raw`معادله $$\begin{array}{|c|c|}1.8 & 6 \\ 7 & 9\end{array}$$`;
@@ -189,6 +223,14 @@ describe("site adapters and settings", () => {
       expect(view.host.dataset.site).toBeUndefined();
       view.destroy();
     }
+  });
+  it("gives a Latin segment an explicit native LTR reader context when one is requested", () => {
+    const view = createView(element('<p>English 16</p>'), defaults, file => file, "chatgpt", { controls: false, language: "latin" });
+    expect(view.article.dir).toBe("ltr");
+    expect(view.article.lang).toBe("en");
+    expect(view.article.classList.contains("reader-language-latin")).toBe(true);
+    expect(view.host.dataset.pmvLanguage).toBe("latin");
+    view.destroy();
   });
   it("identifies only exact supported hosts", () => {
     expect(detectSite("gemini.google.com")).toBe("gemini");

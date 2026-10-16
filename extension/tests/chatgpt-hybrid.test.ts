@@ -24,6 +24,10 @@ const hybridResponse = `
       <div data-dil-message-id="lesson-1">
         <h2 data-d-component="title">آزمون کوتاه مفهومی</h2>
         <p data-d-component="text" id="safe-prose">فرمول $1.8 + |6| + 7/9$ را با دقت بخوانید.</p>
+        <div data-d-component="text" id="rich-prose">این <span data-d-component="strong">بخش پررنگ</span> و <span style="font-style: italic">بخش کج</span> است: $1.8 + |6|$</div>
+        <div data-d-component="math" id="persian-display-math"><span data-math="x_1 = 1.8 + |6| + \\frac{7}{9}" data-display="true">x₁ = 1.8 + |6| + 7/9</span></div>
+        <p data-d-component="text" id="latin-prose"><strong>Entirely English 16</strong> stays native: $1.8 + |6| + 7/9$.</p>
+        <div data-d-component="math" id="latin-display-math"><span data-math="x_1 = 1.8 + |6| + \\frac{7}{9}" data-display="true">x₁ = 1.8 + |6| + 7/9</span></div>
         <div data-d-component="box" id="native-diagram"><svg aria-label="diagram"><path d="M0 0"></path></svg><p>نمودارِ بومی</p></div>
         <div data-d-component="box" id="native-quiz">
           <p>کدام گزینه درست است؟</p>
@@ -52,11 +56,19 @@ describe("ChatGPT hybrid boundaries", () => {
     const root = fixture(hybridResponse);
     const prose = root.querySelector<HTMLElement>("#safe-prose")!;
     const quote = root.querySelector<HTMLElement>("#safe-quote")!;
+    const rich = root.querySelector<HTMLElement>("#rich-prose")!;
+    const latin = root.querySelector<HTMLElement>("#latin-prose")!;
+    const persianMath = root.querySelector<HTMLElement>("#persian-display-math")!;
+    const latinMath = root.querySelector<HTMLElement>("#latin-display-math")!;
     const quiz = root.querySelector<HTMLElement>("#native-quiz")!;
     const diagram = root.querySelector<HTMLElement>("#native-diagram")!;
     const table = root.querySelector<HTMLElement>("#native-table")!;
     expect(isSafeChatGPTTextBlock(prose)).toBe(true);
     expect(isSafeChatGPTTextBlock(quote)).toBe(true);
+    expect(isSafeChatGPTTextBlock(rich)).toBe(true);
+    expect(isSafeChatGPTTextBlock(latin)).toBe(true);
+    expect(isSafeChatGPTTextBlock(persianMath)).toBe(true);
+    expect(isSafeChatGPTTextBlock(latinMath)).toBe(true);
     expect(isSafeChatGPTTextBlock(quiz)).toBe(false);
     expect(isSafeChatGPTTextBlock(diagram)).toBe(false);
     expect(isSafeChatGPTTextBlock(table)).toBe(false);
@@ -96,6 +108,7 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(table.dataset.pmvNativeKind).toBe("table");
     expect(root.dataset.pmvChatgptHybrid).toBe("true");
     expect(root.style.getPropertyValue("--pmv-persian-font")).toContain("Vazirmatn");
+    expect(root.getAttribute("lang")).toBeNull();
 
     controller.setSettings({ ...defaults, persianFont: "B Nazanin" });
     expect(root.style.getPropertyValue("--pmv-persian-font")).toContain("B Nazanin");
@@ -104,6 +117,38 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(document.querySelector(".pmv-host")).toBeNull();
     expect(quiz.classList.contains("pmv-chatgpt-native")).toBe(false);
     expect(root.dataset.pmvChatgptHybrid).toBeUndefined();
+  });
+
+  it("preserves ChatGPT rich inline formatting while leaving a wholly English block untouched", async () => {
+    document.body.innerHTML = hybridResponse;
+    const rich = document.querySelector<HTMLElement>("#rich-prose")!;
+    const latin = document.querySelector<HTMLElement>("#latin-prose")!;
+    const persianMath = document.querySelector<HTMLElement>("#persian-display-math")!;
+    const latinMath = document.querySelector<HTMLElement>("#latin-display-math")!;
+    const latinBefore = latin.outerHTML;
+
+    controller = new ChatGPTHybridController(defaults, file => file);
+    controller.start();
+    await finishStyleLoads();
+
+    const richHost = rich.nextElementSibling as HTMLElement;
+    expect(rich.style.display).toBe("none");
+    expect(richHost.classList.contains("pmv-host")).toBe(true);
+    expect(richHost.shadowRoot?.querySelector("strong")?.textContent).toBe("بخش پررنگ");
+    expect(richHost.shadowRoot?.querySelector("em")?.textContent).toBe("بخش کج");
+    expect(richHost.shadowRoot?.querySelector(".katex-html")?.textContent).toContain("۱.۸");
+
+    const persianMathHost = persianMath.nextElementSibling as HTMLElement;
+    expect(persianMath.style.display).toBe("none");
+    expect(persianMathHost.classList.contains("pmv-host")).toBe(true);
+    expect(persianMathHost.shadowRoot?.querySelector(".katex-display .persian-math-digit")?.textContent).toBe("۱");
+
+    expect(latin.style.display).toBe("");
+    expect(latin.nextElementSibling?.classList.contains("pmv-host")).toBe(false);
+    expect(latin.classList.contains("pmv-chatgpt-native")).toBe(false);
+    expect(latin.outerHTML).toBe(latinBefore);
+    expect(latinMath.style.display).toBe("");
+    expect(latinMath.nextElementSibling?.classList.contains("pmv-host")).toBe(false);
   });
 
   it("keeps a stream safe when a prose block becomes a native interactive component", async () => {

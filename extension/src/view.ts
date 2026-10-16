@@ -1,11 +1,17 @@
 import DOMPurify from "dompurify";
 import { renderMarkdown } from "../../src/lib/markdown";
+import type { ContentLanguage } from "../../src/lib/language";
 import { applySettings, type Settings } from "./settings";
 import type { Site } from "./adapters";
 import { decorateTables } from "./tables";
 
-export function renderSafe(markdown: string, site?: Site): DocumentFragment {
-  return decorateTables(DOMPurify.sanitize(renderMarkdown(markdown, { canonicalMath: true }), {
+export function renderSafe(markdown: string, site?: Site, language: ContentLanguage = "persian"): DocumentFragment {
+  return decorateTables(DOMPurify.sanitize(renderMarkdown(markdown, {
+    canonicalMath: true,
+    // A Latin-only ChatGPT segment deliberately bypasses every Persian-only
+    // AST pass.  This prevents stray Persian math digits in English replies.
+    persian: language === "persian",
+  }), {
     RETURN_DOM_FRAGMENT: true,
     ADD_TAGS: ["annotation", "semantics"],
     ADD_ATTR: ["encoding"],
@@ -40,6 +46,8 @@ export function patchBlocks(target: HTMLElement, fragment: DocumentFragment) {
 export type ViewOptions = {
   /** Segment views live beside native ChatGPT components and need no per-block toggle. */
   controls?: boolean;
+  /** Defaults to Persian for the standalone app and existing site adapters. */
+  language?: ContentLanguage;
 };
 
 export type ReaderView = {
@@ -59,6 +67,7 @@ export function createView(
   options: ViewOptions = {},
 ): ReaderView {
   const controls = options.controls ?? true;
+  const language = options.language ?? "persian";
   const host = document.createElement("div");
   host.className = "pmv-host";
   host.style.cssText = "display:block;min-width:0;max-width:100%;";
@@ -74,7 +83,8 @@ export function createView(
     host.style.boxSizing = "border-box";
   }
   host.setAttribute("role", "region");
-  host.setAttribute("aria-label", "Persian formatted response");
+  host.setAttribute("aria-label", language === "persian" ? "Persian formatted response" : "Formatted response");
+  host.dataset.pmvLanguage = language;
   const shadow = host.attachShadow({ mode: "open" });
   const ready = Promise.all(["fonts.css", "katex.css", "reader.css"].map(file => new Promise<void>((resolve, reject) => {
     const link = document.createElement("link");
@@ -85,9 +95,9 @@ export function createView(
     shadow.append(link);
   })));
   const article = document.createElement("article");
-  article.className = "reader";
-  article.dir = "rtl";
-  article.lang = "fa";
+  article.className = `reader reader-language-${language}`;
+  article.dir = language === "persian" ? "rtl" : "ltr";
+  article.lang = language === "persian" ? "fa" : "en";
   applySettings(article, settings);
   let native: HTMLButtonElement | undefined;
   if (controls) {
@@ -136,7 +146,7 @@ export function createView(
     }
   });
   function update(markdown: string) {
-    const fragment = renderSafe(markdown, site);
+    const fragment = renderSafe(markdown, site, language);
     fragment.querySelectorAll(".code-frame-header").forEach(header => {
       const tools = document.createElement("span");
       tools.className = "code-actions";

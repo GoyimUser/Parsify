@@ -93,6 +93,17 @@ $$`);
     expect(html).not.toContain("katex-error");
   });
 
+  it("keeps an explicitly Latin rendering path free of Persian digit and direction transforms", () => {
+    const html = renderMarkdown(String.raw`**Bold 16** and $1.8 + |6| + \frac{7}{9} - 5$ with $A \implies B$.`, { persian: false });
+
+    expect(html).toContain("<strong>");
+    expect(html).toContain("Bold");
+    expect(html).toContain("1.8");
+    expect(html).toContain("⟹");
+    expect(html).not.toContain("persian-math-digit");
+    expect(html).not.toMatch(/[۰-۹]/);
+  });
+
   it("uses a left-pointing implication in Persian math while retaining the standard arrow in Latin math", () => {
     const persian = renderMarkdown(String.raw`اگر $A \implies B$ آنگاه نتیجه برقرار است.`);
     const latin = renderMarkdown(String.raw`If $A \implies B$, the result holds.`);

@@ -1,6 +1,9 @@
 :host { display:block; color:inherit; color-scheme:light dark; }
 * { box-sizing:border-box; }
 .reader { font:17px/1.95 var(--persian-font, "Vazirmatn", sans-serif); color:inherit; text-align:right; direction:rtl; overflow-wrap:break-word; min-width:0; }
+.reader.reader-language-latin { font-family:var(--english-font,Arial,serif); text-align:left; direction:ltr; }
+.reader.reader-language-latin ol { list-style-type:decimal; }
+.reader.reader-language-latin .table-scroll,.reader.reader-language-latin table { direction:ltr; }
 [hidden] { display:none!important; }
 .reader p { margin:.6em 0; }
 .reader h1,.reader h2,.reader h3,.reader h4 { line-height:1.6; margin:1.4em 0 .65em; font-weight:700; }

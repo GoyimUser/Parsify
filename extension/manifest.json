@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Parsify — Persian Chat Reader",
-  "version": "1.2.0",
-  "description": "Persian typography, readable math and native-safe interactive ChatGPT support for ChatGPT, Gemini and Google AI Studio. All rendering stays on your device.",
+  "version": "1.3.0",
+  "description": "Language-aware Persian typography, readable math and native-safe ChatGPT rich-text support for ChatGPT, Gemini and Google AI Studio. All rendering stays on your device.",
   "minimum_chrome_version": "120",
   "permissions": ["storage"],
   "action": { "default_popup": "popup.html", "default_title": "Parsify" },
