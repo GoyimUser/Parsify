@@ -1,7 +1,8 @@
 # Validation and limitations
 
-For the extension-only v0.1.2 ChatGPT adapter release (component 1.1.3), see
-[the ChatGPT adapter validation record](CHATGPT-ADAPTER-QA.md). The v0.1.1
+For the extension-only v0.1.3 ChatGPT hybrid release (component 1.2.0), see
+[the ChatGPT hybrid validation record](CHATGPT-HYBRID-QA.md). The v0.1.2
+[adapter validation record](CHATGPT-ADAPTER-QA.md) and the v0.1.1
 [rich prose / math regression validation](RENDERING-REGRESSION-QA.md) remains
 applicable to Gemini and AI Studio.
 The native-app record below remains unchanged.

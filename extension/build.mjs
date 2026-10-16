@@ -18,7 +18,7 @@ if (Object.keys(result.metafile.inputs).some(p => /(?:jspdf|html2canvas|@tauri-a
   throw new Error("Desktop/PDF dependency leaked into extension");
 }
 await writeFile(path.join(dir,"build-meta.json"), JSON.stringify(result.metafile, null, 2));
-for (const file of ["manifest.json", "reader.css", "ui.css"]) await copyFile(path.join(dir,file),path.join(out,file));
+for (const file of ["manifest.json", "reader.css", "ui.css", "chatgpt.css"]) await copyFile(path.join(dir,file),path.join(out,file));
 await writeFile(path.join(out,"reader.css"), await readFile(path.join(dir,"reader.css"),"utf8") + "\n" + await readFile(path.join(project,"src/code.css"),"utf8"));
 for (const name of ["popup.html","options.html"]) await copyFile(path.join(dir,"settings.html"),path.join(out,name));
 await copyFile(path.join(project,"public/fonts/Yas.ttf"),path.join(out,"fonts/Yas.ttf"));
@@ -47,7 +47,7 @@ fonts += (katex.match(/@font-face\{[^}]+\}/g) ?? []).join("\n");
 await writeFile(path.join(out,"fonts.css"),fonts);
 await writeFile(path.join(out,"fonts-global.css"),fonts.replace(/url\(["']?fonts\/([^)'"\s]+)["']?\)/g, 'url("chrome-extension://__MSG_@@extension_id__/fonts/$1")'));
 const manifest = JSON.parse(await readFile(path.join(out,"manifest.json"),"utf8"));
-manifest.content_scripts[0].css = ["fonts-global.css"];
+manifest.content_scripts[0].css = ["fonts-global.css", "chatgpt.css"];
 await writeFile(path.join(out,"manifest.json"),JSON.stringify(manifest,null,2));
 for (const [source,name] of [["katex/LICENSE","KaTeX.txt"],["vazirmatn/OFL.txt","Vazirmatn.txt"],["@fontsource/ubuntu-mono/LICENSE","Ubuntu-Mono.txt"]]) {
   await copyFile(path.join(project,"node_modules",source),path.join(out,"licenses",name));

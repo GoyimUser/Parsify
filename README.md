@@ -20,7 +20,7 @@ Parsify is a local-first Persian Markdown reader and AI-chat enhancement toolkit
 | Android | Touch-friendly viewer/editor, paper size/orientation/margin controls, native printing | Android 7+ ARM64 APK |
 | Chrome | Streaming response enhancement, original/enhanced views, per-site settings | Manifest V3 unpacked ZIP, Chrome 120+ |
 
-The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.2** contains the ChatGPT extension adapter (component **1.1.3**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
+The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.3** contains the native-safe ChatGPT hybrid adapter (component **1.2.0**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
 
 ## Features
 
@@ -29,6 +29,7 @@ The extension has **no PDF export**. Native app titles and identifiers retain **
 - **Reliable numeric typography:** punctuation-adjacent digits (`1.8`, `7/9`, `|6|`) convert in rendered math nodes, not raw LaTeX commands. The bundled Yas face keeps its hollow zero and independent math-digit styling.
 - **Persian text in equations:** B Nazanin when locally installed, with bundled Vazirmatn fallback. Proprietary B Nazanin and IRANSans binaries are not distributed.
 - **Responsive tables:** GFM structure, inline math/emphasis, left/center/right Markdown colon alignment, and accessible horizontal scrolling without widening the page.
+- **Native-safe ChatGPT enhancement:** plain Persian Markdown blocks are enhanced individually, while ChatGPT diagrams, quizzes, media cards, native tables and controls remain mounted and interactive in their original layout.
 - **Clean print layout:** scrollbars, editor, toolbar and notifications are excluded; tables fit printable width, repeat headers and paginate. Landscape is recommended for dense tables.
 - **IDE-style code:** C++, Python, JavaScript, TypeScript, HTML, CSS, Bash, JSON, Rust, Go, Markdown and more; Mac-style frames, labels and syntax colors. Containers stay LTR; Persian comments/strings are isolated. Inline code is preserved separately.
 - **Independent font settings:** Persian prose, English prose (Arial / Times New Roman), in-math text, and code. Ubuntu Mono is bundled; Fira Code, JetBrains Mono, Cascadia Code, Source Code Pro, Courier New and system monospace can be selected with local-font fallback. Ligatures are optional and require a supporting font.
@@ -40,7 +41,7 @@ The extension has **no PDF export**. Native app titles and identifiers retain **
 
 *Local synthetic fixture, not a private or live Google chat; the table is scrolled to its leftmost columns.*
 
-Download the [latest Chrome extension](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.2) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
+Download the [latest Chrome extension](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.3) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
 
 ### Windows
 
@@ -62,10 +63,10 @@ This is a **development-signed sideload build**, not a Play Store production rel
 
 ### Chrome extension
 
-1. Extract `Parsify-v0.1.2-chrome-extension.zip` into a permanent folder.
+1. Extract `Parsify-v0.1.3-chrome-extension.zip` into a permanent folder.
 2. Open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the folder containing `manifest.json`.
 3. Refresh ChatGPT / Gemini / AI Studio tabs. Use the Parsify popup or options page to enable sites and customize fonts, code theme and ligatures.
-4. Use the original/enhanced toggle when needed. Disabling enhancements restores original content.
+4. Gemini and AI Studio retain the original/enhanced toggle. On ChatGPT, Parsify enhances safe prose in place and deliberately keeps native quizzes, diagrams and controls interactive. Disabling enhancements restores all original content.
 
 No Chrome Web Store listing is claimed. Google services require internet access and regional availability; Parsify does not bypass restrictions or change DNS.
 

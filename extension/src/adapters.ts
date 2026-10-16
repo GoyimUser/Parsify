@@ -29,7 +29,12 @@ export function findResponses(root: ParentNode, site: Site): HTMLElement[] {
     // article or generic `.markdown` is never enough to opt in.
     for (const turn of root.querySelectorAll<HTMLElement>('article[data-testid^="conversation-turn-"]')) {
       const heading = turn.querySelector('h4, h5, [role="heading"]')?.textContent?.trim() ?? "";
-      if (/^(ChatGPT|Assistant) said:$/i.test(heading) && !messages.includes(turn)) messages.push(turn);
+      // When a current assistant-message root exists inside the completed
+      // turn, it is the narrowest trustworthy boundary. Adding the enclosing
+      // article as well would make `outermost()` discard that rich root and
+      // accidentally include action bars or native response components.
+      const nestedAssistant = turn.querySelector('[data-markdown-text-style="assistant-message"], [data-message-author-role="assistant"]');
+      if (/^(ChatGPT|Assistant) said:$/i.test(heading) && !nestedAssistant && !messages.includes(turn)) messages.push(turn);
     }
     for (const heading of root.querySelectorAll<HTMLElement>('h4[data-conversation-role="assistant"]')) {
       const content = heading.parentElement?.querySelector<HTMLElement>('[data-markdown-text-style="assistant-message"]');

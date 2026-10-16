@@ -11,9 +11,9 @@ In Chrome open `chrome://extensions`, enable Developer mode, select **Load unpac
 
 ## Behavior and architecture
 
-### ChatGPT adapter (1.1.3)
+### ChatGPT hybrid adapter (1.2.0)
 
-ChatGPT is supported through its assistant-only rich-response marker rather than broad `div`, `article` or generic Markdown selectors. This avoids the composer, prompts, action controls and user turns. Existing `Gemini & AI Studio` preferences migrate automatically to the new all-sites default. See [the adapter validation record](../docs/CHATGPT-ADAPTER-QA.md) for the current live DOM boundary and test scope.
+ChatGPT is supported through its assistant-only rich-response marker rather than broad `div`, `article` or generic Markdown selectors. Its current responses can interleave ordinary Markdown with diagrams, media, tables and interactive quizzes. The hybrid adapter therefore enhances only direct semantic text blocks that have no visual or interactive descendants. Native islands stay mounted in place under ChatGPT's own renderer, preserving radio state, buttons, SVG geometry and React event handlers while applying scoped Persian typography to their labels. Existing `Gemini & AI Studio` preferences migrate automatically to the new all-sites default. See [the hybrid validation record](../docs/CHATGPT-HYBRID-QA.md) for the current live DOM boundary and test scope.
 
 ### Rich prose / math boundary correction (1.1.2)
 
@@ -38,7 +38,9 @@ Run `pnpm extension:preview` and visit
 with dashboard brackets, nested equations, emphasis, quotes, real code, narrow
 layout and streaming checks. No private chat content is included.
 
-The adapter identifies assistant response containers. A MutationObserver reads detached clones; KaTeX annotations and math data attributes recover original TeX before DOM-to-Markdown conversion. Math and code are protected from conversion escapes. The shared unified/remark/rehype pipeline renders the result and DOMPurify sanitizes it. Output lives in a shadow root so host styles do not affect KaTeX or code. Only changed output blocks are replaced; work is coalesced during streams. Original content remains mounted for the host framework. Each response has an Original/enhanced toggle; disabling the extension restores all original content. Response-level controls stay outside the replacement. Code blocks have copy/save controls with original source text.
+The Google adapters identify assistant response containers. A MutationObserver reads detached clones; KaTeX annotations and math data attributes recover original TeX before DOM-to-Markdown conversion. Math and code are protected from conversion escapes. The shared unified/remark/rehype pipeline renders the result and DOMPurify sanitizes it. Output lives in a shadow root so host styles do not affect KaTeX or code. Only changed output blocks are replaced; work is coalesced during streams. Original content remains mounted for the host framework. Gemini/AI Studio views offer an Original/enhanced toggle; ChatGPT uses the native-safe hybrid boundary above. Code blocks have copy/save controls with original source text.
+
+For a locally reproducible ChatGPT hybrid visual check, run `pnpm extension:preview` and visit `/extension/chatgpt-hybrid-preview.html`. It contains Persian prose/math plus a native diagram, quiz and wide table; its verifier confirms the text/math path and the preserved native controls without using private chat content.
 
 Open shadow roots are observed recursively, including roots attached later. Closed shadow roots are inaccessible. Interactive widgets or math without recoverable source remain in their original view. Site markup can change: selectors are isolated in `src/adapters.ts`; test fixtures are not proof of compatibility with future Google releases. Streaming rerenders may replace the current incomplete block while completed unchanged blocks retain their DOM identity.
 

@@ -37,7 +37,28 @@ export function patchBlocks(target: HTMLElement, fragment: DocumentFragment) {
   while (target.childNodes.length > incoming.length) target.lastChild!.remove();
 }
 
-export function createView(source: HTMLElement, settings: Settings, asset: (path: string) => string, site?: Site) {
+export type ViewOptions = {
+  /** Segment views live beside native ChatGPT components and need no per-block toggle. */
+  controls?: boolean;
+};
+
+export type ReaderView = {
+  host: HTMLDivElement;
+  article: HTMLElement;
+  ready: Promise<unknown>;
+  update(markdown: string): void;
+  activate(): void;
+  destroy(): void;
+};
+
+export function createView(
+  source: HTMLElement,
+  settings: Settings,
+  asset: (path: string) => string,
+  site?: Site,
+  options: ViewOptions = {},
+): ReaderView {
+  const controls = options.controls ?? true;
   const host = document.createElement("div");
   host.className = "pmv-host";
   host.style.cssText = "display:block;min-width:0;max-width:100%;";
@@ -68,14 +89,19 @@ export function createView(source: HTMLElement, settings: Settings, asset: (path
   article.dir = "rtl";
   article.lang = "fa";
   applySettings(article, settings);
-  const toolbar = document.createElement("div");
-  toolbar.className = "reader-tools";
-  const native = document.createElement("button");
-  native.type = "button";
-  native.textContent = "Original / enhanced";
-  native.setAttribute("aria-label", "Toggle original response and its native controls");
-  toolbar.append(native);
-  shadow.append(article, toolbar);
+  let native: HTMLButtonElement | undefined;
+  if (controls) {
+    const toolbar = document.createElement("div");
+    toolbar.className = "reader-tools";
+    native = document.createElement("button");
+    native.type = "button";
+    native.textContent = "Original / enhanced";
+    native.setAttribute("aria-label", "Toggle original response and its native controls");
+    toolbar.append(native);
+    shadow.append(article, toolbar);
+  } else {
+    shadow.append(article);
+  }
   let original = false;
   let active = false;
   const previousHidden = source.style.getPropertyValue("display");
@@ -88,9 +114,9 @@ export function createView(source: HTMLElement, settings: Settings, asset: (path
     if (original || !active) showSource();
     else source.style.setProperty("display", "none", "important");
     article.hidden = original;
-    native.setAttribute("aria-pressed", String(original));
+    native?.setAttribute("aria-pressed", String(original));
   }
-  native.addEventListener("click", () => { original = !original; sync(); });
+  native?.addEventListener("click", () => { original = !original; sync(); });
   // Copy/download the original code, without converted digits or bidi markers.
   article.addEventListener("click", async event => {
     const button = (event.target as Element).closest<HTMLButtonElement>("button[data-action]");

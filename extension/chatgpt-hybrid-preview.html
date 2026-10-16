@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parsify — ChatGPT hybrid QA</title>
+<link rel="stylesheet" href="dist/fonts.css">
+<link rel="stylesheet" href="chatgpt.css">
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: #f5f6f8; color: #202430; font: 16px/1.9 Vazirmatn, system-ui, sans-serif; }
+  nav { position: sticky; inset-block-start: 0; z-index: 3; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 14px 20px; background: #fff; border-bottom: 1px solid #d9dce3; }
+  nav strong { margin-inline-end: 10px; } button { border: 1px solid #c9ceda; border-radius: 8px; padding: 7px 11px; background: #fff; cursor: pointer; }
+  #result { color: #0b7b48; font-weight: 700; }
+  main { max-width: 860px; margin: 24px auto; padding: 0 20px 48px; }
+  article { background: #fff; border: 1px solid #e1e4eb; border-radius: 16px; padding: 28px clamp(18px, 4vw, 46px); box-shadow: 0 8px 28px #242a4210; }
+  [data-d-component="box"] { margin: 20px 0; padding: 18px; border: 1px solid #dce1ea; border-radius: 14px; background: #f8fafc; }
+  [data-d-component="radio-group"] { display: grid; gap: 10px; margin: 14px 0; }
+  [role="radio"] { display: block; width: 100%; text-align: start; font: inherit; }
+  [data-d-component="table"] { margin: 20px 0; } table { border-collapse: collapse; min-width: 560px; } td, th { padding: 8px 12px; border: 1px solid #cfd6e1; }
+  .diagram-stage { overflow: hidden; background: linear-gradient(135deg, #eff6ff, #f7f1ff); }
+  .diagram-stage svg { display: block; width: min(100%, 520px); margin: auto; }
+  .native-note { color: #687285; font-size: .9rem; }
+</style>
+<nav>
+  <strong>Parsify · ChatGPT hybrid QA</strong>
+  <button id="verify" type="button">Verify hybrid boundary</button>
+  <output id="result" aria-live="polite">Preparing fixture…</output>
+</nav>
+<main>
+  <article data-markdown-text-style="assistant-message">
+    <div data-dil-message-id="hybrid-lesson">
+      <h2 data-d-component="title">آموزش تعاملی با محتوای بومی</h2>
+      <p data-d-component="text" id="intro">این پاراگرافِ امن باید با ارقام فارسی و فرمول درون‌خطی <span data-math="1.8 + |6| + 7/9"></span> رندر شود.</p>
+
+      <div data-d-component="box" class="diagram-stage" id="diagram">
+        <p data-d-component="title">دیاگرام بومی ChatGPT</p>
+        <svg viewBox="0 0 520 180" role="img" aria-label="روند انتقال الکترون">
+          <circle cx="150" cy="90" r="56" fill="#dceeff" stroke="#408cd9" stroke-width="3"></circle>
+          <circle cx="370" cy="90" r="56" fill="#fde8e8" stroke="#db6a6a" stroke-width="3"></circle>
+          <path d="M220 90H300" stroke="#4c5568" stroke-width="4" marker-end="url(#arrow)"></path>
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#4c5568"></path></marker></defs>
+          <text x="150" y="98" text-anchor="middle">کرهٔ خنثی</text><text x="370" y="98" text-anchor="middle">زمین</text>
+        </svg>
+        <p class="native-note">این کارت عمداً بومی می‌ماند؛ Parsify فقط فونت و خوانایی فارسیِ متنش را هماهنگ می‌کند.</p>
+      </div>
+
+      <div data-d-component="box" id="quiz">
+        <h3 data-d-component="title">آزمون کوتاه مفهومی</h3>
+        <p data-d-component="text">پس از قطع زمین، چرا کره می‌تواند بار خالص خود را حفظ کند؟</p>
+        <div data-d-component="radio-group" aria-label="گزینه‌های آزمون">
+          <button type="button" role="radio" aria-checked="false" data-state="unchecked">چون الکترون‌های اضافی راه بازگشت به زمین ندارند.</button>
+          <button type="button" role="radio" aria-checked="false" data-state="unchecked">چون بارها خلق شده‌اند.</button>
+        </div>
+        <button type="button" data-d-component="button">بررسی پاسخ‌ها</button>
+      </div>
+
+      <div data-d-component="table" id="native-table">
+        <table><thead><tr><th>مرحله</th><th>بار خالص</th><th>توضیح</th></tr></thead><tbody>
+          <tr><td>۱</td><td>۰</td><td>کره خنثی است.</td></tr><tr><td>۲</td><td>−</td><td>الکترون اضافه مانده است.</td></tr>
+        </tbody></table>
+      </div>
+
+      <blockquote data-d-component="text" id="outro">نکتهٔ نهایی: فرمول نمایشی <span data-math="\\sum_{i=1}^{6} i = 21" data-display="true"></span> باید LTR و وسط‌چین بماند.</blockquote>
+    </div>
+  </article>
+</main>
+<script type="module" src="./chatgpt-hybrid-preview.ts"></script>
+</html>

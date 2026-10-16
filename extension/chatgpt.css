@@ -1,0 +1,44 @@
+/*
+ * ChatGPT hybrid adapter styles.
+ *
+ * These rules are deliberately scoped to nodes marked by chatgpt-hybrid.ts.
+ * They improve Persian text inside native components without changing the
+ * component layout, SVG geometry, event handlers, or quiz state.
+ */
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native :is(
+  p, h1, h2, h3, h4, h5, h6, li, blockquote, th, td, label, figcaption,
+  [data-d-component="text"], [data-d-component="title"],
+  [role="radio"], button
+) {
+  font-family: var(--pmv-persian-font, "Vazirmatn", sans-serif);
+}
+
+/* ChatGPT already owns the quiz interaction; only give Persian labels a
+ * stable bidi context. Flex/grid direction and the radio state remain native. */
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-native-kind="quiz"] [data-d-component="radio-group"],
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-native-kind="quiz"] [role="radio"] {
+  direction: rtl;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+/* Native result tables retain ChatGPT's semantics and layout. The wrapper is
+ * made safely scrollable on narrow viewports without making it a custom table. */
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-native-kind="table"] {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-native-kind="table"] table {
+  direction: rtl;
+  text-align: start;
+}
+
+/* Do not inject direction into diagrams themselves: arrows, axes and SVG
+ * coordinate systems belong to ChatGPT. Text in surrounding component labels
+ * remains readable through the scoped Persian font rule above. */
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-native-kind="diagram"] :is(svg, canvas) {
+  unicode-bidi: isolate;
+}
