@@ -6,9 +6,9 @@
 [![Release](https://img.shields.io/github/v/release/GoyimUser/Parsify)](https://github.com/GoyimUser/Parsify/releases)
 [![CI](https://github.com/GoyimUser/Parsify/actions/workflows/ci.yml/badge.svg)](https://github.com/GoyimUser/Parsify/actions/workflows/ci.yml)
 [![Tauri 2](https://img.shields.io/badge/Tauri-2-24C8DB)](https://tauri.app/)
-[![Manifest V3](https://img.shields.io/badge/Chrome-Manifest_V3-4285F4)](extension/)
+[![Manifest V3](https://img.shields.io/badge/WebExtensions-Manifest_V3-4285F4)](extension/)
 
-Parsify is a local-first Persian Markdown reader and AI-chat enhancement toolkit. A shared AST-based renderer powers Windows, Android, and Chrome integrations for ChatGPT, Google Gemini and Google AI Studio. RTL prose, isolated LTR math, and programming code each keep their own typography.
+Parsify is a local-first Persian Markdown reader and AI-chat enhancement toolkit. A shared AST-based renderer powers Windows, Android, Chrome and Firefox integrations for ChatGPT, Google Gemini and Google AI Studio. RTL prose, isolated LTR math, and programming code each keep their own typography.
 
 > **Early public release:** Windows packages are unsigned; the Android ARM64 package uses a development signing certificate. Final native PDF verification remains incomplete. See [validation and known limitations](docs/VALIDATION.md) before relying on printed output.
 
@@ -19,8 +19,9 @@ Parsify is a local-first Persian Markdown reader and AI-chat enhancement toolkit
 | Windows | Local Markdown, live editor/preview, reader mode, native WebView2 printing | x64 NSIS installer |
 | Android | Touch-friendly viewer/editor, paper size/orientation/margin controls, native printing | Android 7+ ARM64 APK |
 | Chrome | Streaming response enhancement, original/enhanced views, per-site settings | Manifest V3 unpacked ZIP, Chrome 120+ |
+| Firefox | Same local renderer, fonts and site adapters | Manifest V3 XPI/ZIP package, Firefox 142+; Mozilla signing required for permanent stable installation |
 
-The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.5** contains the compact ChatGPT typography and native-table correction (component **1.3.1**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
+The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.6** adds a Firefox Manifest V3 package alongside the compact ChatGPT typography and native-table correction (component **1.3.2**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
 
 ## Features
 
@@ -41,7 +42,7 @@ The extension has **no PDF export**. Native app titles and identifiers retain **
 
 *Local synthetic fixture, not a private or live Google chat; the table is scrolled to its leftmost columns.*
 
-Download the [latest Chrome extension](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.5) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
+Download the [latest browser extension packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.6) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
 
 ### Windows
 
@@ -63,12 +64,19 @@ This is a **development-signed sideload build**, not a Play Store production rel
 
 ### Chrome extension
 
-1. Extract `Parsify-v0.1.5-chrome-extension.zip` into a permanent folder.
+1. Extract `Parsify-v0.1.6-chrome-extension.zip` into a permanent folder.
 2. Open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the folder containing `manifest.json`.
 3. Refresh ChatGPT / Gemini / AI Studio tabs. Use the Parsify popup or options page to enable sites and customize fonts, code theme and ligatures.
 4. Gemini and AI Studio retain the original/enhanced toggle. On ChatGPT, Parsify enhances safe prose in place and deliberately keeps native quizzes, diagrams and controls interactive. Disabling enhancements restores all original content.
 
 No Chrome Web Store listing is claimed. Google services require internet access and regional availability; Parsify does not bypass restrictions or change DNS.
+
+### Firefox extension
+
+1. Download `Parsify-v0.1.6-firefox.xpi`. An XPI is the Firefox add-on ZIP format and contains the same local renderer, bundled fonts and ChatGPT/Gemini/AI Studio adapters as the Chrome build.
+2. The release package is unsigned. Standard Firefox correctly requires Mozilla signing before it will permanently install an XPI from a file. This repository does not claim AMO signing or a Firefox Add-ons listing.
+3. To test it now, extract the XPI (or `Parsify-v0.1.6-firefox-temporary.zip`), open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select the extracted `manifest.json`. Refresh the supported chat tab. Firefox removes temporary add-ons on restart.
+4. A Mozilla-signed XPI can later be installed directly with Firefox’s **Install Add-on From File** button. The stable extension ID is `parsify@goyimuser.github.io`.
 
 ## Repository layout
 
@@ -99,6 +107,8 @@ pnpm build
 pnpm tauri dev
 # Extension:
 pnpm extension:build
+pnpm extension:firefox:build
+pnpm extension:firefox:lint
 ```
 
 [Architecture](docs/ARCHITECTURE.md) · [Privacy](docs/PRIVACY.md) · [Contributing](CONTRIBUTING.md) · [Validation](docs/VALIDATION.md)

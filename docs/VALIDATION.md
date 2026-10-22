@@ -1,7 +1,7 @@
 # Validation and limitations
 
-For the extension-only v0.1.5 ChatGPT compact typography/native-table release (component 1.3.1), see
-[the ChatGPT hybrid validation record](CHATGPT-HYBRID-QA.md). The v0.1.2
+For the extension-only v0.1.6 Firefox package release (component 1.3.2), see
+[the Firefox release validation](RELEASE-v0.1.6.md) and [the ChatGPT hybrid validation record](CHATGPT-HYBRID-QA.md). The v0.1.2
 [adapter validation record](CHATGPT-ADAPTER-QA.md) and the v0.1.1
 [rich prose / math regression validation](RENDERING-REGRESSION-QA.md) remains
 applicable to Gemini and AI Studio.

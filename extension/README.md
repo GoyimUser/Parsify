@@ -7,11 +7,13 @@ Manifest V3 extension for ChatGPT, Gemini and Google AI Studio, sharing the desk
 From the application directory: `pnpm install --frozen-lockfile`, `pnpm extension:build`.
 In Chrome open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose this `dist` directory. Refresh any already-open ChatGPT, Gemini or AI Studio chats after first installation. Pin the extension to open its popup. Full settings include a live typography preview.
 
+For Firefox 142+, run `pnpm extension:firefox:build` followed by `pnpm extension:firefox:lint`. The Firefox output is `dist-firefox/`; it uses the same renderer and assets, but retains relative font URLs and includes Firefox-specific MV3 metadata. `npx web-ext build --source-dir extension/dist-firefox --artifacts-dir release --filename Parsify-firefox.xpi` creates an XPI (a ZIP-format add-on). It must be Mozilla-signed before permanent installation in standard Firefox; for local testing, use **Load Temporary Add-on** in `about:debugging` and select `dist-firefox/manifest.json`.
+
 `pnpm extension:test` runs adapter, extraction, security, streaming, and settings checks. `pnpm test` also runs desktop renderer regression tests. `pnpm extension:preview` serves the development UI at `/extension/dist/options.html`.
 
 ## Behavior and architecture
 
-### ChatGPT language-aware rich-text adapter (1.3.1)
+### ChatGPT language-aware rich-text adapter (1.3.2)
 
 ChatGPT is supported through its assistant-only rich-response marker rather than broad `div`, `article` or generic Markdown selectors. Its current responses can interleave Markdown-like rich text with diagrams, media, tables and interactive quizzes. The adapter normalizes detached ChatGPT rich-text wrappers into semantic headings, paragraphs, bold, emphasis, strike-through, lists and quotes before Markdown conversion, so those semantics survive the shared renderer. It then applies Parsify only to Persian or mixed blocks; fully English text and formulas retain ChatGPT's native DOM, direction, digits and fonts. Each converted Persian segment inherits its original ChatGPT font metrics and margins, avoiding full-document heading scales and excess list/paragraph gaps. Math-only blocks inherit the language of their adjacent explanatory prose. Native islands stay mounted in place under ChatGPT's own renderer, preserving radio state, buttons, SVG geometry and React event handlers. Citation-bearing Persian prose receives the selected Persian font without changing its source control, while native Persian tables fill the response width and horizontally scroll instead of collapsing into a right-edge strip. Existing `Gemini & AI Studio` preferences migrate automatically to the new all-sites default. See [the hybrid validation record](../docs/CHATGPT-HYBRID-QA.md) for the current live DOM boundary and test scope.
 
@@ -70,7 +72,7 @@ Code font selection applies to all block code, never inline code or equations. U
 
 Vazirmatn, Ubuntu Mono, KaTeX faces and the existing project's Yas math-digit face are bundled for local rendering. B Nazanin/IRANSans are optional system-installed fonts, with Vazirmatn fallback; proprietary font binaries are not downloaded or distributed. English font preferences apply only to prose. Yas digits keep their hollow zero and do not follow prose preferences.
 
-Third-party license texts are in `licenses/` and generated JavaScript legal notices. The unmodified Yas.ttf matches the upstream farsi-fonts/Yas release byte-for-byte and its OFL-1.1 notice is included. This package is for unpacked installation, not a Chrome Web Store submission. See the repository's THIRD_PARTY_NOTICES.md for provenance.
+Third-party license texts are in `licenses/` and generated JavaScript legal notices. The unmodified Yas.ttf matches the upstream farsi-fonts/Yas release byte-for-byte and its OFL-1.1 notice is included. The Chrome package is for unpacked installation; the Firefox package is an unsigned test build until it is submitted for Mozilla signing. See the repository's THIRD_PARTY_NOTICES.md for provenance.
 
 ## Privacy
 

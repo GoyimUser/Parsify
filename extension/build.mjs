@@ -6,12 +6,14 @@ import { createRequire } from "node:module";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const project = path.dirname(dir);
-const out = path.join(dir, "dist");
+const firefox = process.argv.includes("--firefox");
+const targetName = firefox ? "Firefox" : "Chrome";
+const out = path.join(dir, firefox ? "dist-firefox" : "dist");
 await mkdir(path.join(out, "fonts"), { recursive: true });
 await mkdir(path.join(out, "licenses"), { recursive: true });
 const result = await build({
   entryPoints: [path.join(dir,"src/content.ts"), path.join(dir,"src/ui.ts")],
-  bundle:true, format:"iife", platform:"browser", target:"chrome120", outdir:out,
+  bundle:true, format:"iife", platform:"browser", target:firefox ? "firefox142" : "chrome120", outdir:out,
   minify:true, legalComments:"linked", metafile:true,
 });
 if (Object.keys(result.metafile.inputs).some(p => /(?:jspdf|html2canvas|@tauri-apps)/.test(p))) {
@@ -45,8 +47,26 @@ for (const weight of [400,700]) for (const style of ["normal","italic"]) {
 // Chromium resolves font faces at document scope, including text in shadow roots.
 fonts += (katex.match(/@font-face\{[^}]+\}/g) ?? []).join("\n");
 await writeFile(path.join(out,"fonts.css"),fonts);
-await writeFile(path.join(out,"fonts-global.css"),fonts.replace(/url\(["']?fonts\/([^)'"\s]+)["']?\)/g, 'url("chrome-extension://__MSG_@@extension_id__/fonts/$1")'));
+// Chrome expands the special extension-id token in manifest-injected CSS.
+// Firefox resolves relative URLs in manifest CSS against the CSS file, so the
+// same generated @font-face rules must retain their ordinary relative paths.
+await writeFile(path.join(out,"fonts-global.css"),firefox
+  ? fonts
+  : fonts.replace(/url\(["']?fonts\/([^)'"\s]+)["']?\)/g, 'url("chrome-extension://__MSG_@@extension_id__/fonts/$1")'));
 const manifest = JSON.parse(await readFile(path.join(out,"manifest.json"),"utf8"));
+if (firefox) {
+  delete manifest.minimum_chrome_version;
+  manifest.browser_specific_settings = {
+    gecko: {
+      id: "parsify@goyimuser.github.io",
+      // Firefox 142 supports both the native-component :has() guard and the
+      // required no-data-collection declaration on desktop and Android.
+      strict_min_version: "142.0",
+      // Parsify works locally: it neither collects nor transmits user data.
+      data_collection_permissions: { required: ["none"] },
+    },
+  };
+}
 manifest.content_scripts[0].css = ["fonts-global.css", "chatgpt.css"];
 await writeFile(path.join(out,"manifest.json"),JSON.stringify(manifest,null,2));
 for (const [source,name] of [["katex/LICENSE","KaTeX.txt"],["vazirmatn/OFL.txt","Vazirmatn.txt"],["@fontsource/ubuntu-mono/LICENSE","Ubuntu-Mono.txt"]]) {
@@ -56,4 +76,4 @@ await copyFile(path.join(dir,"README.md"),path.join(out,"README.md"));
 await copyFile(path.join(project,"node_modules/lowlight/license"),path.join(out,"licenses/lowlight.txt"));
 const lowlightRequire = createRequire(await realpath(path.join(project,"node_modules/lowlight/package.json")));
 await copyFile(path.join(path.dirname(lowlightRequire.resolve("highlight.js/package.json")),"LICENSE"),path.join(out,"licenses/highlight.js.txt"));
-console.log(`Chrome extension built: ${out}`);
+console.log(`${targetName} extension built: ${out}`);

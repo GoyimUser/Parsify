@@ -7,6 +7,8 @@ pnpm install --frozen-lockfile
 pnpm test
 pnpm build
 pnpm extension:build
+pnpm extension:firefox:build
+pnpm extension:firefox:lint
 pnpm tauri build --bundles nsis
 ```
 
@@ -26,9 +28,15 @@ Keep the checked-in customized project at `src-tauri/gen/android`; do not delete
 
 Unsigned APK: `src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk`. Despite the Gradle variant name, this target contains **ARM64 only**. Sign using `android/package-apk.ps1` and a privately managed keystore. The initial release is development-signed; a production signing strategy requires key custody and an upgrade migration plan. Never commit keystores or passwords.
 
-## Extension
+## Browser extensions
 
-Zip the contents of `extension/dist/` with `manifest.json` at the root. Component version 1.1.1 is retained to avoid downgrading existing installs; v0.1.0 names the unified project release. No store submission is automated.
+Chrome packages zip the contents of `extension/dist/` with `manifest.json` at the root. Firefox packages are built from `extension/dist-firefox/`, which shares all renderer code but substitutes Firefox MV3 metadata and relative content-style font URLs. Use:
+
+```sh
+npx web-ext build --source-dir extension/dist-firefox --artifacts-dir release --filename Parsify-firefox.xpi
+```
+
+An XPI is a ZIP-format Firefox add-on. The package is suitable for `about:debugging` temporary loading once extracted. Standard Firefox requires Mozilla signing for permanent file-based installation; no store submission or signing is automated.
 
 ## Notices and validation
 

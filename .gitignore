@@ -2,6 +2,7 @@ node_modules/
 .pnpm-store/
 dist/
 extension/dist/
+extension/dist-firefox/
 extension/build-meta.json
 target/
 **/build/
@@ -36,5 +37,7 @@ tmp/
 work/
 output/
 releases/
+release/
+chatgpt-hybrid-v*.png
 extension/qa-images/
 extension/QA.md

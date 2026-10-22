@@ -9,6 +9,8 @@
     "test": "vitest run",
     "tauri": "tauri",
     "extension:build": "tsc -p extension/tsconfig.json && node extension/build.mjs",
+    "extension:firefox:build": "tsc -p extension/tsconfig.json && node extension/build.mjs --firefox",
+    "extension:firefox:lint": "npx --yes web-ext lint --source-dir extension/dist-firefox",
     "extension:test": "vitest run extension",
     "extension:preview": "vite --host 127.0.0.1 --port 4180"
   },
