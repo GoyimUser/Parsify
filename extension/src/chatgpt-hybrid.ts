@@ -62,6 +62,16 @@ function isMathOnlyBlock(block: HTMLElement) {
     || block.matches(".katex, .katex-display, math, mjx-container, .MathJax, [data-math], [data-latex]");
 }
 
+/**
+ * Recent ChatGPT layouts can flatten Markdown list rows into consecutive
+ * direct blocks. They must retain the shared renderer for Persian/math, but
+ * they cannot each inherit the outer response row's vertical margin.
+ */
+function isDirectListItem(block: HTMLElement) {
+  return block.matches("li, [role='listitem']")
+    || block.dataset.dComponent?.trim().toLowerCase() === "list-item";
+}
+
 function languageSignalFor(block: HTMLElement): ContentLanguageSignal {
   if (isMathOnlyBlock(block)) return "neutral";
   return classifyContentLanguage(block.textContent ?? "");
@@ -225,7 +235,11 @@ export class ChatGPTHybridController {
   private mountSegment(entry: ResponseEntry, source: HTMLElement, language: ContentLanguage) {
     try {
       const markdown = extractMarkdown(source, "chatgpt");
-      const view = createView(source, this.settings, this.asset, "chatgpt", { controls: false, language });
+      const view = createView(source, this.settings, this.asset, "chatgpt", {
+        controls: false,
+        language,
+        compactListItem: isDirectListItem(source),
+      });
       view.host.dataset.pmvChatgptSegment = "true";
       view.update(markdown);
       view.host.style.visibility = "hidden";

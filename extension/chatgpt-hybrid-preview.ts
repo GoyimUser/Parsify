@@ -18,6 +18,7 @@ async function verify() {
   const diagram = document.querySelector<HTMLElement>("#diagram")!;
   const table = document.querySelector<HTMLElement>("#native-table")!;
   const citation = document.querySelector<HTMLElement>("#citation")!;
+  const directListRows = Array.from(document.querySelectorAll<HTMLElement>(".direct-list-row"));
   const introView = intro.nextElementSibling as HTMLElement | null;
   const richView = rich.nextElementSibling as HTMLElement | null;
   const persianEquationView = persianEquation.nextElementSibling as HTMLElement | null;
@@ -43,6 +44,14 @@ async function verify() {
     && citation.dataset.pmvNativeKind === "interactive"
     && citation.dataset.pmvLanguage === "persian"
     && getComputedStyle(citation).fontFamily.includes("Vazirmatn")
+    && directListRows.length === 3
+    && directListRows.every(row => {
+      const host = row.nextElementSibling as HTMLElement | null;
+      return row.style.display === "none"
+        && host?.dataset.pmvChatgptListItem === "true"
+        && !host.style.marginBlockStart
+        && !host.style.marginBlockEnd;
+    })
     && table.clientWidth >= Math.floor(table.parentElement!.clientWidth * .98)
     && table.scrollWidth >= table.clientWidth;
   result.textContent = pass

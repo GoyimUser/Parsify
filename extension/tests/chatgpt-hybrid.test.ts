@@ -27,6 +27,7 @@ const hybridResponse = `
         <div data-d-component="text" id="rich-prose">این <span data-d-component="strong">بخش پررنگ</span> و <span style="font-style: italic">بخش کج</span> است: $1.8 + |6|$</div>
         <p data-d-component="text" id="persian-citation">این پاراگراف فارسی منبع دارد <button role="button">Reference source</button>.</p>
         <div data-d-component="math" id="persian-display-math"><span data-math="x_1 = 1.8 + |6| + \\frac{7}{9}" data-display="true">x₁ = 1.8 + |6| + 7/9</span></div>
+        <div data-d-component="list-item" id="direct-list-item" style="margin:48px 0">نکتۀ فهرست با فرمول $1.8 + |6|$</div>
         <p data-d-component="text" id="latin-prose"><strong>Entirely English 16</strong> stays native: $1.8 + |6| + 7/9$.</p>
         <div data-d-component="math" id="latin-display-math"><span data-math="x_1 = 1.8 + |6| + \\frac{7}{9}" data-display="true">x₁ = 1.8 + |6| + 7/9</span></div>
         <div data-d-component="box" id="native-diagram"><svg aria-label="diagram"><path d="M0 0"></path></svg><p>نمودارِ بومی</p></div>
@@ -65,6 +66,7 @@ describe("ChatGPT hybrid boundaries", () => {
     const diagram = root.querySelector<HTMLElement>("#native-diagram")!;
     const table = root.querySelector<HTMLElement>("#native-table")!;
     const citation = root.querySelector<HTMLElement>("#persian-citation")!;
+    const directListItem = root.querySelector<HTMLElement>("#direct-list-item")!;
     expect(isSafeChatGPTTextBlock(prose)).toBe(true);
     expect(isSafeChatGPTTextBlock(quote)).toBe(true);
     expect(isSafeChatGPTTextBlock(rich)).toBe(true);
@@ -75,6 +77,7 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(isSafeChatGPTTextBlock(diagram)).toBe(false);
     expect(isSafeChatGPTTextBlock(table)).toBe(false);
     expect(isSafeChatGPTTextBlock(citation)).toBe(false);
+    expect(isSafeChatGPTTextBlock(directListItem)).toBe(true);
   });
 
   it("enhances safe Persian prose while preserving native quizzes, diagrams and tables", async () => {
@@ -87,6 +90,7 @@ describe("ChatGPT hybrid boundaries", () => {
     const diagram = document.querySelector<HTMLElement>("#native-diagram")!;
     const table = document.querySelector<HTMLElement>("#native-table")!;
     const citation = document.querySelector<HTMLElement>("#persian-citation")!;
+    const directListItem = document.querySelector<HTMLElement>("#direct-list-item")!;
     const initialRadioStates = Array.from(quiz.querySelectorAll("[role=radio]"), radio => radio.getAttribute("data-state"));
 
     controller = new ChatGPTHybridController(defaults, file => file);
@@ -100,6 +104,13 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(proseHost.style.getPropertyValue("--pmv-chatgpt-font-size")).toBe("16px");
     expect(proseHost.style.getPropertyValue("--pmv-chatgpt-line-height")).toBe("26px");
     expect(proseHost.shadowRoot?.querySelector(".reader")?.classList.contains("reader-chatgpt")).toBe(true);
+    const listHost = directListItem.nextElementSibling as HTMLElement;
+    expect(listHost.dataset.pmvChatgptListItem).toBe("true");
+    // A direct list row must not copy ChatGPT's large per-row margin to its
+    // shadow sibling; otherwise every Markdown bullet becomes a separate gap.
+    expect(listHost.style.marginBlockStart).toBe("");
+    expect(listHost.style.marginBlockEnd).toBe("");
+    expect(listHost.shadowRoot?.querySelector(".katex-html")?.textContent).toContain("۱.۸");
     const headingHost = heading.nextElementSibling as HTMLElement;
     expect(headingHost.style.getPropertyValue("--pmv-chatgpt-font-size")).toBe("18px");
     expect(headingHost.style.getPropertyValue("--pmv-chatgpt-line-height")).toBe("28px");
