@@ -41,6 +41,16 @@
       <li data-d-component="list-item" class="direct-list-row" style="margin:52px 0">نکتۀ دوم با $|6|$</li>
       <li data-d-component="list-item" class="direct-list-row" style="margin:52px 0">نکتۀ سوم با $7/9$</li>
 
+      <!-- Exact current ChatGPT DIL list shape: the whole native ul is a
+           response child and each li holds Content > Label > p wrappers. -->
+      <h3 data-d-component="title">فهرست بومی ChatGPT</h3>
+      <ul id="native-chatgpt-list" data-d-component="list" data-d-marker="bullet" style="margin:16px 0;padding-inline-start:32px">
+        <li data-d-component="list-item"><div class="Content"><div data-d-list-item-content><p data-d-component="text"><strong>مبحث:</strong> ترکیبیات شمارشی و مجموع فاصله‌ها</p></div></div></li>
+        <li data-d-component="list-item"><div class="Content"><div data-d-list-item-content><p data-d-component="text"><strong>ایدهٔ محوری:</strong> شکستن فاصلۀ منهتنی به دو مؤلفۀ مستقل سطری و ستونی.</p></div></div></li>
+        <li data-d-component="list-item"><div class="Content"><div data-d-list-item-content><p data-d-component="text"><strong>دشواری:</strong> ۳ از ۱۰</p></div></div></li>
+        <li data-d-component="list-item"><div class="Content"><div data-d-list-item-content><p data-d-component="text"><strong>دلیل:</strong> این فهرست باید مانند Markdown اصلی فشرده بماند.</p></div></div></li>
+      </ul>
+
       <h3 data-d-component="title" lang="en" dir="ltr">English control segment</h3>
       <p data-d-component="text" id="english-prose" lang="en" dir="ltr"><strong>Bold English 16</strong> and <em>italic text</em> with Latin digits 1.8 + |6| + 7/9 must remain native and LTR.</p>
       <div data-d-component="math" id="english-equation" lang="en" dir="ltr"><span data-math="x_1 = 1.8 + |6| + \frac{7}{9}" data-display="true">x₁ = 1.8 + |6| + 7/9</span></div>

@@ -50,6 +50,8 @@ export type ViewOptions = {
   language?: ContentLanguage;
   /** ChatGPT can expose each Markdown list row as a direct response child. */
   compactListItem?: boolean;
+  /** A native ChatGPT ul/ol must retain row-level rather than prose-level rhythm. */
+  compactList?: boolean;
 };
 
 export type ReaderView = {
@@ -69,7 +71,7 @@ export type ReaderView = {
  * metrics that define the original block's rhythm. This deliberately excludes
  * font-family: Persian segments need the user's selected Persian font instead.
  */
-function syncChatGPTSourceMetrics(source: HTMLElement, host: HTMLElement, compactListItem = false) {
+function syncChatGPTSourceMetrics(source: HTMLElement, host: HTMLElement, compactList = false) {
   const computed = getComputedStyle(source);
   const metrics: ReadonlyArray<readonly [string, string]> = [
     ["--pmv-chatgpt-font-size", computed.fontSize],
@@ -87,7 +89,7 @@ function syncChatGPTSourceMetrics(source: HTMLElement, host: HTMLElement, compac
   // Preserve those exact margins on a normal sibling host. ChatGPT sometimes
   // exposes *each* Markdown list row as a direct child: copying its row margin
   // onto a shadow sibling turns one compact list into widely-separated items.
-  if (compactListItem) return;
+  if (compactList) return;
   for (const [property, value] of [
     ["margin-block-start", computed.marginBlockStart],
     ["margin-block-end", computed.marginBlockEnd],
@@ -109,15 +111,17 @@ export function createView(
   const language = options.language ?? "persian";
   const chatGPTSegment = site === "chatgpt" && !controls;
   const compactListItem = chatGPTSegment && (options.compactListItem ?? false);
+  const compactList = chatGPTSegment && ((options.compactList ?? false) || compactListItem);
   const host = document.createElement("div");
   host.className = "pmv-host";
   host.style.cssText = "display:block;min-width:0;max-width:100%;";
   if (chatGPTSegment) {
     host.dataset.pmvChatgptCompact = "true";
     if (compactListItem) host.dataset.pmvChatgptListItem = "true";
+    if (compactList) host.dataset.pmvChatgptList = "true";
     // Must happen before activate() hides source. Later stream updates can
     // refresh the values only while ChatGPT has made a source block visible.
-    syncChatGPTSourceMetrics(source, host, compactListItem);
+    syncChatGPTSourceMetrics(source, host, compactList);
   }
   if (site === "gemini") {
     // Gemini's outer response spans the viewport; its native Markdown children
@@ -216,7 +220,7 @@ export function createView(
       // A hidden source has no reliable computed font metrics. Its initial
       // values remain correct, and are intentionally retained until a future
       // visible stream update supplies fresh values.
-      if (chatGPTSegment && getComputedStyle(source).display !== "none") syncChatGPTSourceMetrics(source, host, compactListItem);
+      if (chatGPTSegment && getComputedStyle(source).display !== "none") syncChatGPTSourceMetrics(source, host, compactList);
     },
     update,
     activate() { active = true; sync(); },

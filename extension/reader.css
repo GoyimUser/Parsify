@@ -19,14 +19,24 @@
 }
 .reader.reader-chatgpt > :is(p,h1,h2,h3,h4,h5,h6,ul,ol,blockquote,pre,hr,.table-scroll,.code-frame) { margin:0; }
 .reader.reader-chatgpt > :is(h1,h2,h3,h4,h5,h6) { font-size:inherit; line-height:inherit; font-weight:inherit; font-style:inherit; letter-spacing:inherit; }
-.reader.reader-chatgpt :is(ul,ol) { margin:0; padding-inline-start:1.45em; }
-.reader.reader-chatgpt li { margin:0; }
-.reader.reader-chatgpt li + li { margin-block-start:.24em; }
-.reader.reader-chatgpt li > p { margin:0; }
-/* Turndown can retain harmless inline wrapper elements below a list item.
-   Treat every textual wrapper as part of that compact list row, not as an
-   independent prose block with the desktop reader's paragraph margin. */
-.reader.reader-chatgpt :is(ul,ol) li :is(p,div) { margin-block:0; }
+.reader.reader-chatgpt > :is(ul,ol) {
+  display:block;
+  margin:0!important;
+  padding-block:0!important;
+  padding-inline-start:1.45em!important;
+}
+/* ChatGPT's DIL list serialisation is often a "loose" Markdown list because
+   every native row contains Content > Label > p wrappers.  The replacement
+   must make every generated wrapper participate in exactly one compact list
+   row—not in the desktop reader's paragraph rhythm. */
+.reader.reader-chatgpt > :is(ul,ol) > li {
+  display:list-item!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+.reader.reader-chatgpt > :is(ul,ol) > li + li { margin-block-start:.24em!important; }
+.reader.reader-chatgpt > :is(ul,ol) > li :is(p,div) { margin-block:0!important; padding-block:0!important; }
 .reader.reader-chatgpt blockquote { margin:0; padding-block:.1em; }
 .reader.reader-chatgpt .table-scroll { margin:0; }
 .reader.reader-chatgpt .katex-display { margin:0; padding:.12em 0; }

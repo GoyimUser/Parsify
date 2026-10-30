@@ -72,6 +72,19 @@ function isDirectListItem(block: HTMLElement) {
     || block.dataset.dComponent?.trim().toLowerCase() === "list-item";
 }
 
+/**
+ * ChatGPT's current DIL renderer emits one semantic `<ul>` / `<ol>` with
+ * `data-d-component="list"`, then wraps each row in layout-only divs.  The
+ * replacement view is therefore one list segment, and must never inherit the
+ * ordinary paragraph/response margins that would make every row look loose.
+ */
+function isNativeList(block: HTMLElement) {
+  const component = block.dataset.dComponent?.trim().toLowerCase();
+  return block.matches("ul, ol, [role='list']")
+    || component === "list"
+    || component === "ordered-list";
+}
+
 function languageSignalFor(block: HTMLElement): ContentLanguageSignal {
   if (isMathOnlyBlock(block)) return "neutral";
   return classifyContentLanguage(block.textContent ?? "");
@@ -239,6 +252,7 @@ export class ChatGPTHybridController {
         controls: false,
         language,
         compactListItem: isDirectListItem(source),
+        compactList: isNativeList(source),
       });
       view.host.dataset.pmvChatgptSegment = "true";
       view.update(markdown);

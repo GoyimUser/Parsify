@@ -19,6 +19,7 @@ async function verify() {
   const table = document.querySelector<HTMLElement>("#native-table")!;
   const citation = document.querySelector<HTMLElement>("#citation")!;
   const directListRows = Array.from(document.querySelectorAll<HTMLElement>(".direct-list-row"));
+  const nativeList = document.querySelector<HTMLElement>("#native-chatgpt-list")!;
   const introView = intro.nextElementSibling as HTMLElement | null;
   const richView = rich.nextElementSibling as HTMLElement | null;
   const persianEquationView = persianEquation.nextElementSibling as HTMLElement | null;
@@ -52,6 +53,10 @@ async function verify() {
         && !host.style.marginBlockStart
         && !host.style.marginBlockEnd;
     })
+    && nativeList.style.display === "none"
+    && nativeList.nextElementSibling instanceof HTMLElement
+    && (nativeList.nextElementSibling as HTMLElement).dataset.pmvChatgptList === "true"
+    && (nativeList.nextElementSibling as HTMLElement).shadowRoot?.querySelectorAll(".reader > ul > li").length === 4
     && table.clientWidth >= Math.floor(table.parentElement!.clientWidth * .98)
     && table.scrollWidth >= table.clientWidth;
   result.textContent = pass

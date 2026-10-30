@@ -21,7 +21,7 @@ Parsify is a local-first Persian Markdown reader and AI-chat enhancement toolkit
 | Chrome | Streaming response enhancement, original/enhanced views, per-site settings | Manifest V3 unpacked ZIP, Chrome 120+ |
 | Firefox | Same local renderer, fonts and site adapters | Manifest V3 XPI/ZIP package, Firefox 142+; Mozilla signing required for permanent stable installation |
 
-The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.7** fixes excessive vertical spacing in direct ChatGPT Markdown list items on Chrome and Firefox (component **1.3.3**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
+The extension has **no PDF export**. Native app titles and identifiers retain **Persian Markdown Viewer** for compatibility with existing local installs. Repository release **v0.1.8** fixes excessive vertical spacing in ChatGPT's current nested native Markdown lists on Chrome and Firefox (component **1.3.4**). Windows and Android installers remain at **v0.1.0**; their PDF implementations and fonts are unchanged.
 
 ## Features
 
@@ -42,7 +42,7 @@ The extension has **no PDF export**. Native app titles and identifiers retain **
 
 *Local synthetic fixture, not a private or live Google chat; the table is scrolled to its leftmost columns.*
 
-Download the [latest browser extension packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.7) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
+Download the [latest browser extension packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.8) or the [Windows/Android packages](https://github.com/GoyimUser/Parsify/releases/tag/v0.1.0), together with the corresponding `SHA256SUMS.txt`. Verify checksums using `Get-FileHash <file> -Algorithm SHA256` on Windows or `sha256sum <file>` on Linux.
 
 ### Windows
 
@@ -64,7 +64,7 @@ This is a **development-signed sideload build**, not a Play Store production rel
 
 ### Chrome extension
 
-1. Extract `Parsify-v0.1.7-chrome-extension.zip` into a permanent folder.
+1. Extract `Parsify-v0.1.8-chrome-extension.zip` into a permanent folder.
 2. Open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the folder containing `manifest.json`.
 3. Refresh ChatGPT / Gemini / AI Studio tabs. Use the Parsify popup or options page to enable sites and customize fonts, code theme and ligatures.
 4. Gemini and AI Studio retain the original/enhanced toggle. On ChatGPT, Parsify enhances safe prose in place and deliberately keeps native quizzes, diagrams and controls interactive. Disabling enhancements restores all original content.
@@ -73,9 +73,9 @@ No Chrome Web Store listing is claimed. Google services require internet access 
 
 ### Firefox extension
 
-1. Download `Parsify-v0.1.7-firefox.xpi`. An XPI is the Firefox add-on ZIP format and contains the same local renderer, bundled fonts and ChatGPT/Gemini/AI Studio adapters as the Chrome build.
+1. Download `Parsify-v0.1.8-firefox.xpi`. An XPI is the Firefox add-on ZIP format and contains the same local renderer, bundled fonts and ChatGPT/Gemini/AI Studio adapters as the Chrome build.
 2. The release package is unsigned. Standard Firefox correctly requires Mozilla signing before it will permanently install an XPI from a file. This repository does not claim AMO signing or a Firefox Add-ons listing.
-3. To test it now, extract the XPI (or `Parsify-v0.1.7-firefox-temporary.zip`), open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select the extracted `manifest.json`. Refresh the supported chat tab. Firefox removes temporary add-ons on restart.
+3. To test it now, extract the XPI (or `Parsify-v0.1.8-firefox-temporary.zip`), open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select the extracted `manifest.json`. Refresh the supported chat tab. Firefox removes temporary add-ons on restart.
 4. A Mozilla-signed XPI can later be installed directly with Firefox’s **Install Add-on From File** button. The stable extension ID is `parsify@goyimuser.github.io`.
 
 ## Repository layout

@@ -23,6 +23,12 @@ const hybridResponse = `
     <div data-markdown-text-style="assistant-message">
       <div data-dil-message-id="lesson-1">
         <h2 data-d-component="title" id="compact-heading" style="font-size:18px;line-height:28px;font-weight:700;margin:24px 0">آزمون کوتاه مفهومی</h2>
+        <ul id="native-chatgpt-list" data-d-component="list" data-d-marker="bullet" style="margin:16px 0;padding-inline-start:32px">
+          <li data-d-component="list-item"><div data-d-list-item-content><p data-d-component="text"><strong>مبحث:</strong> ترکیبیات شمارشی و مجموع فاصله‌ها</p></div></li>
+          <li data-d-component="list-item"><div data-d-list-item-content><p data-d-component="text"><strong>ایدهٔ محوری:</strong> شکستن فاصلهٔ منهتنی به دو مؤلفهٔ مستقل.</p></div></li>
+          <li data-d-component="list-item"><div data-d-list-item-content><p data-d-component="text"><strong>دشواری:</strong> ۳ از ۱۰</p></div></li>
+          <li data-d-component="list-item"><div data-d-list-item-content><p data-d-component="text"><strong>دلیل:</strong> این فهرست باید فشرده باقی بماند.</p></div></li>
+        </ul>
         <p data-d-component="text" id="safe-prose" style="font-size:16px;line-height:26px;font-weight:500;margin:16px 0">فرمول $1.8 + |6| + 7/9$ را با دقت بخوانید.</p>
         <div data-d-component="text" id="rich-prose">این <span data-d-component="strong">بخش پررنگ</span> و <span style="font-style: italic">بخش کج</span> است: $1.8 + |6|$</div>
         <p data-d-component="text" id="persian-citation">این پاراگراف فارسی منبع دارد <button role="button">Reference source</button>.</p>
@@ -67,6 +73,7 @@ describe("ChatGPT hybrid boundaries", () => {
     const table = root.querySelector<HTMLElement>("#native-table")!;
     const citation = root.querySelector<HTMLElement>("#persian-citation")!;
     const directListItem = root.querySelector<HTMLElement>("#direct-list-item")!;
+    const nativeList = root.querySelector<HTMLElement>("#native-chatgpt-list")!;
     expect(isSafeChatGPTTextBlock(prose)).toBe(true);
     expect(isSafeChatGPTTextBlock(quote)).toBe(true);
     expect(isSafeChatGPTTextBlock(rich)).toBe(true);
@@ -78,6 +85,7 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(isSafeChatGPTTextBlock(table)).toBe(false);
     expect(isSafeChatGPTTextBlock(citation)).toBe(false);
     expect(isSafeChatGPTTextBlock(directListItem)).toBe(true);
+    expect(isSafeChatGPTTextBlock(nativeList)).toBe(true);
   });
 
   it("enhances safe Persian prose while preserving native quizzes, diagrams and tables", async () => {
@@ -91,6 +99,7 @@ describe("ChatGPT hybrid boundaries", () => {
     const table = document.querySelector<HTMLElement>("#native-table")!;
     const citation = document.querySelector<HTMLElement>("#persian-citation")!;
     const directListItem = document.querySelector<HTMLElement>("#direct-list-item")!;
+    const nativeList = document.querySelector<HTMLElement>("#native-chatgpt-list")!;
     const initialRadioStates = Array.from(quiz.querySelectorAll("[role=radio]"), radio => radio.getAttribute("data-state"));
 
     controller = new ChatGPTHybridController(defaults, file => file);
@@ -111,6 +120,15 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(listHost.style.marginBlockStart).toBe("");
     expect(listHost.style.marginBlockEnd).toBe("");
     expect(listHost.shadowRoot?.querySelector(".katex-html")?.textContent).toContain("۱.۸");
+    const nativeListHost = nativeList.nextElementSibling as HTMLElement;
+    expect(nativeList.style.display).toBe("none");
+    expect(nativeListHost.dataset.pmvChatgptList).toBe("true");
+    // The actual ChatGPT DOM is a single `<ul>` with Content > Label > p
+    // wrappers.  It must remain one compact list in the shadow renderer.
+    expect(nativeListHost.style.marginBlockStart).toBe("");
+    expect(nativeListHost.style.marginBlockEnd).toBe("");
+    expect(nativeListHost.shadowRoot?.querySelectorAll(".reader > ul > li")).toHaveLength(4);
+    expect(nativeListHost.shadowRoot?.querySelector(".reader > ul > li strong")?.textContent).toBe("مبحث:");
     const headingHost = heading.nextElementSibling as HTMLElement;
     expect(headingHost.style.getPropertyValue("--pmv-chatgpt-font-size")).toBe("18px");
     expect(headingHost.style.getPropertyValue("--pmv-chatgpt-line-height")).toBe("28px");
