@@ -6,6 +6,11 @@
 .reader.reader-language-latin .table-scroll,.reader.reader-language-latin table { direction:ltr; }
 [hidden] { display:none!important; }
 .reader.reader-chatgpt {
+  /* Inherited whitespace crosses the shadow boundary. ChatGPT can preserve
+     newlines on its response ancestor; our generated HTML contains formatting
+     newlines between ul/li/p tags, which must not become visible line boxes.
+     Code keeps its explicit white-space:pre rule; Markdown breaks use <br>. */
+  white-space:normal;
   /* ChatGPT renders each response child with its own compact rhythm. Unlike
      the desktop reader, this shadow-root segment must inherit that rhythm
      rather than inventing document-scale heading and paragraph spacing. */

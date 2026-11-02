@@ -20,6 +20,11 @@
   .diagram-stage { overflow: hidden; background: linear-gradient(135deg, #eff6ff, #f7f1ff); }
   .diagram-stage svg { display: block; width: min(100%, 520px); margin: auto; }
   .native-note { color: #687285; font-size: .9rem; }
+  /* Model the inherited host property that the former fixture omitted.
+     Native semantic blocks reset it locally; replacement shadow hosts inherit
+     it from the renderer, as they do on the affected ChatGPT response. */
+  [data-dil-message-id] { display:flex; flex-direction:column; white-space:pre-wrap; }
+  [data-dil-message-id] > [data-d-component] { white-space:normal; }
 </style>
 <nav>
   <strong>Parsify · ChatGPT hybrid QA</strong>
@@ -50,6 +55,16 @@
         <li data-d-component="list-item"><div class="Content"><div data-d-list-item-content><p data-d-component="text"><strong>دشواری:</strong> ۳ از ۱۰</p></div></div></li>
         <li data-d-component="list-item"><div class="Content"><div data-d-list-item-content><p data-d-component="text"><strong>دلیل:</strong> این فهرست باید مانند Markdown اصلی فشرده بماند.</p></div></div></li>
       </ul>
+
+      <ul id="math-list" data-d-component="list">
+        <li><p>اولین <span data-math="B"></span> باقی می‌ماند.</p></li>
+        <li><p>وقتی <span data-math="B_2"></span> بعدی می‌رسد، <strong>فرمول</strong> باقی می‌ماند.</p><ul><li>زیرمجموعهٔ فارسی 12</li></ul></li>
+      </ul>
+      <p id="hard-break" data-d-component="text">خط اول<br>خط دوم</p>
+      <pre id="code-whitespace" data-d-component="code"><code class="language-cpp">// توضیح فارسی
+int main() {
+    return 0;
+}</code></pre>
 
       <h3 data-d-component="title" lang="en" dir="ltr">English control segment</h3>
       <p data-d-component="text" id="english-prose" lang="en" dir="ltr"><strong>Bold English 16</strong> and <em>italic text</em> with Latin digits 1.8 + |6| + 7/9 must remain native and LTR.</p>

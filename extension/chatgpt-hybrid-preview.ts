@@ -20,11 +20,31 @@ async function verify() {
   const citation = document.querySelector<HTMLElement>("#citation")!;
   const directListRows = Array.from(document.querySelectorAll<HTMLElement>(".direct-list-row"));
   const nativeList = document.querySelector<HTMLElement>("#native-chatgpt-list")!;
+  const renderedList = nativeList.nextElementSibling?.shadowRoot?.querySelector("ul");
+  const rows = Array.from(renderedList?.querySelectorAll<HTMLElement>(":scope > li") ?? []);
+  // DOM presence alone cannot catch CSS inheritance. Measure actual line
+  // boxes: every one-line row must start at its paragraph, with no phantom
+  // line before the text or between the list item wrappers.
+  const compactGeometry = rows.length === 4 && rows.every((row, index) => {
+    const paragraph = row.querySelector("p")!;
+    const box = row.getBoundingClientRect();
+    const textBox = paragraph.getBoundingClientRect();
+    const next = rows[index + 1]?.getBoundingClientRect();
+    return Math.abs(textBox.top - box.top) < 1
+      && box.height <= textBox.height + 1
+      && (!next || next.top - box.bottom < 8);
+  });
+  const code = document.querySelector("#code-whitespace")?.nextElementSibling?.shadowRoot?.querySelector("pre");
+  const hardBreak = document.querySelector("#hard-break")?.nextElementSibling?.shadowRoot?.querySelector("br");
   const introView = intro.nextElementSibling as HTMLElement | null;
   const richView = rich.nextElementSibling as HTMLElement | null;
   const persianEquationView = persianEquation.nextElementSibling as HTMLElement | null;
   const equation = outro.nextElementSibling?.shadowRoot?.querySelector<HTMLElement>(".katex-display");
   const pass = intro.style.display === "none"
+    && compactGeometry
+    && !!hardBreak
+    && !!code && getComputedStyle(code).whiteSpace === "pre"
+    && code.textContent?.includes("\n    return 0;\n")
     && outro.style.display === "none"
     && introView?.shadowRoot?.querySelector(".katex-html")?.textContent?.includes("۱.۸")
     && rich.style.display === "none"
