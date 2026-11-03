@@ -39,7 +39,7 @@
 
 /* Native result tables retain ChatGPT's semantics and layout. The wrapper is
  * made safely scrollable on narrow viewports without making it a custom table. */
-[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] {
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"]:not(table) {
   display:block;
   width:100%;
   max-width: 100%;
@@ -48,19 +48,38 @@
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   margin-inline:auto;
+  direction:rtl;
+  white-space:normal;
+}
+
+/* Native tables can sit inside additional flex/scroll wrappers. Constrain
+ * that ancestor path to the response column and use the same RTL scroll
+ * origin as the table. End-aligned LTR flex overflow otherwise starts outside
+ * the reachable viewport. Do not reparent React nodes or reset scrollLeft. */
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] :is(div,section):has(table) {
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin-inline:0!important;
+  direction:rtl!important;
+  justify-content:normal!important;
+  box-sizing:border-box;
+}
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] :is(div,section):has(> table) {
+  overflow-x:auto;
 }
 
 [data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] table {
   direction: rtl;
   text-align: start;
-  /* Auto-width tables use fit-content, which is why native ChatGPT tables
-     collapsed to a tiny right-aligned strip. Stretch smaller tables to the
-     response width; let genuinely wide tables keep their intrinsic width and
-     scroll inside this wrapper. */
-  width:max-content!important;
+  /* Fit ordinary tables to their viewport. Intrinsic minimum cell widths
+     still allow genuinely wide tables to overflow and scroll. max-content
+     needlessly expanded even two-column prose tables past their viewport. */
+  width:100%!important;
   min-width:100%!important;
   max-width:none!important;
-  margin-inline:auto!important;
+  margin-inline:0!important;
+  flex-shrink:0;
   table-layout:auto;
 }
 
@@ -72,8 +91,9 @@
  * every cell down to a narrow, unreadable strip. The enclosing region takes
  * responsibility for overflow, so this produces a normal full-width table on
  * desktop and an intentional horizontal scroll on small screens. */
-[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"] :is(th, td) {
+[data-pmv-chatgpt-hybrid="true"] .pmv-chatgpt-native[data-pmv-language="persian"][data-pmv-native-kind="table"]:not(table) :is(th, td) {
   min-inline-size:7rem;
+  white-space:normal;
 }
 
 /* Do not inject direction into diagrams themselves: arrows, axes and SVG

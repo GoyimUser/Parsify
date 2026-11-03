@@ -62,6 +62,31 @@ describe("extension content extraction and rendering", () => {
     expect(headingOutput.querySelector("h2 strong")?.textContent).toBe("پررنگ");
     expect(quoteOutput.querySelector("blockquote strong")?.textContent).toBe("مهم");
   });
+  it("preserves DIL default-strong labels and combined emphasis before component normalization", () => {
+    const source = element('<div data-d-component="text"><span data-d-component="text" data-d-default-strong data-d-inline>مشاهدۀ مهم</span> و <span data-d-component="text" data-d-weight="semibold" style="font-style:italic">تأکید ترکیبی</span><code data-d-default-strong>value_16</code></div>');
+    const before = source.innerHTML;
+    const output = rendered(source, "chatgpt");
+    expect(output.querySelector("p > strong")?.textContent).toBe("مشاهدۀ مهم");
+    expect(output.querySelector("strong em")?.textContent).toBe("تأکید ترکیبی");
+    expect(output.querySelector("code")?.textContent).toBe("value_16");
+    expect(output.querySelector("code strong")).toBeNull();
+    expect(source.innerHTML).toBe(before);
+  });
+  it("retains a block's heading/paragraph semantics and does not bold false markers or math", () => {
+    const source = element('<h3 data-d-component="title" data-d-default-strong>عنوان فارسی</h3><div data-d-component="text" data-d-default-strong>پاراگراف پررنگ</div><p><span data-d-default-strong="false">متن معمولی</span><span data-math="B_2" data-d-default-strong>B₂</span></p>');
+    const output = rendered(source, "chatgpt");
+    expect(output.querySelector("h3 strong")?.textContent).toBe("عنوان فارسی");
+    expect(output.querySelector("p > strong")?.textContent).toBe("پاراگراف پررنگ");
+    expect([...output.querySelectorAll("strong")].map(node => node.textContent)).not.toContain("متن معمولی");
+    expect(output.querySelector(".katex strong")).toBeNull();
+  });
+  it("does not duplicate emphasis when semantic components also carry style markers", () => {
+    const output = rendered(element('<p><span data-d-component="bold" data-d-default-strong>پررنگ</span> و <span data-d-component="italic" style="font-style:italic">کج</span></p>'), "chatgpt");
+    expect(output.querySelectorAll("strong")).toHaveLength(1);
+    expect(output.querySelectorAll("em")).toHaveLength(1);
+    expect(output.querySelector("strong")?.textContent).toBe("پررنگ");
+    expect(output.querySelector("em")?.textContent).toBe("کج");
+  });
   it("does not run Persian transformations in an explicitly Latin ChatGPT segment", () => {
     const output = document.createElement("div");
     output.append(renderSafe(String.raw`**Bold 16** and $1.8 + |6| + \frac{7}{9}$.`, "chatgpt", "latin"));

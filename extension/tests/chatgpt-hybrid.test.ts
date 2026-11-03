@@ -212,4 +212,27 @@ describe("ChatGPT hybrid boundaries", () => {
     expect(prose.nextElementSibling?.classList.contains("pmv-host")).toBe(false);
     expect(prose.dataset.pmvNativeKind).toBe("interactive");
   });
+  it("updates bold markers arriving during a stream and keeps English tables native", async () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = hybridResponse;
+    const prose = document.querySelector<HTMLElement>("#safe-prose")!;
+    prose.innerHTML = '<span data-d-component="text">متن فارسی</span>';
+    const renderer = document.querySelector("[data-dil-message-id]")!;
+    const english = document.createElement("div");
+    english.dataset.dComponent = "table";
+    english.innerHTML = "<table><tr><th>English</th><th>Value</th></tr><tr><td>Unchanged</td><td>16</td></tr></table>";
+    renderer.append(english);
+    const before = english.outerHTML;
+    controller = new ChatGPTHybridController(defaults, file => file);
+    controller.start();
+    await finishStyleLoads();
+    const span = prose.querySelector("span")!;
+    span.setAttribute("data-d-default-strong", "");
+    await vi.advanceTimersByTimeAsync(150);
+    expect(prose.nextElementSibling?.shadowRoot?.querySelector("strong")?.textContent).toBe("متن فارسی");
+    span.removeAttribute("data-d-default-strong");
+    await vi.advanceTimersByTimeAsync(150);
+    expect(prose.nextElementSibling?.shadowRoot?.querySelector("strong")).toBeNull();
+    expect(english.outerHTML).toBe(before);
+  });
 });

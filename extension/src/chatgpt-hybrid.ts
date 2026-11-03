@@ -178,7 +178,7 @@ export class ChatGPTHybridController {
       subtree: true,
       characterData: true,
       attributes: true,
-      attributeFilter: ["data-math", "data-latex", "class"],
+      attributeFilter: ["data-math", "data-latex", "class", "data-d-default-strong", "data-d-weight", "data-d-component"],
     });
     this.discover();
     // ChatGPT can append a completed native component after its surrounding

@@ -25,6 +25,8 @@
      it from the renderer, as they do on the affected ChatGPT response. */
   [data-dil-message-id] { display:flex; flex-direction:column; white-space:pre-wrap; }
   [data-dil-message-id] > [data-d-component] { white-space:normal; }
+  [data-d-default-strong], [data-d-weight="semibold"] { font-weight:600; }
+  .native-table-scroll { display:flex; justify-content:flex-end; direction:ltr; overflow-x:auto; width:100%; }
 </style>
 <nav>
   <strong>Parsify · ChatGPT hybrid QA</strong>
@@ -37,6 +39,8 @@
       <h2 data-d-component="title">آموزش تعاملی با محتوای بومی</h2>
       <p data-d-component="text" id="intro">این پاراگرافِ امن باید با ارقام فارسی و فرمول درون‌خطی <span data-math="1.8 + |6| + 7/9"></span> رندر شود.</p>
       <div data-d-component="text" id="rich-prose">این <span data-d-component="strong">بخش پررنگ</span> و <span style="font-style:italic">بخش کج</span> باید همراه با فرمول $1.8 + |6|$ باقی بمانند.</div>
+      <p data-d-component="text" id="default-strong"><span data-d-component="text" data-d-default-strong data-d-inline>Observation 3 — حفظ تعداد رنگ‌ها</span></p>
+      <div data-d-component="text" id="combined-emphasis">متن معمولی و <span data-d-component="text" data-d-weight="semibold" style="font-style:italic">تأکید پررنگ و کج</span>.</div>
       <p data-d-component="text" id="citation" style="font-family:system-ui,sans-serif">این پاراگراف فارسی به یک منبع بیرونی ارجاع دارد <button type="button" role="button">Reference source</button>؛ متن فارسی باید Vazirmatn شود، اما دکمهٔ انگلیسی بومی بماند.</p>
       <div data-d-component="math" id="persian-equation"><span data-math="f(n)=\frac{1.8+|6|}{7/9}" data-display="true">f(n) = (1.8 + |6|) / (7/9)</span></div>
 
@@ -93,10 +97,15 @@ int main() {
       </div>
 
       <div data-d-component="table" id="native-table">
+        <div class="native-table-scroll">
         <table><thead><tr><th>مرحله</th><th>بار خالص</th><th>توضیح</th><th>وضعیت</th><th>زمان</th><th>منبع</th><th>یادداشت</th></tr></thead><tbody>
           <tr><td>۱</td><td>۰</td><td>کره خنثی است.</td><td>پایدار</td><td>۱ ثانیه</td><td>آزمایشگاه</td><td>برای آزمون اسکرول افقی</td></tr><tr><td>۲</td><td>−</td><td>الکترون اضافه مانده است.</td><td>فعال</td><td>۲ ثانیه</td><td>مدل نظری</td><td>ستون‌های جدول نباید فشرده شوند</td></tr>
         </tbody></table>
+        </div>
       </div>
+
+      <div data-d-component="table" id="narrow-native-table"><div class="native-table-scroll"><table style="min-width:0"><thead><tr><th>کاری که در چرک‌نویس انجام داده‌ای</th><th>ارزش آن</th></tr></thead><tbody><tr><td>بررسی حالت‌های کوچک</td><td>کشف الگو و حدس تعداد خروجی‌ها</td></tr><tr><td>مقایسۀ ورودی‌های متفاوت با خروجی یکسان</td><td>کشف برخوردهای نتایج (Collisions)</td></tr></tbody></table></div></div>
+      <table data-d-component="table" id="direct-native-table" style="width:100%;min-width:0"><tbody><tr><th>جدول مستقیم</th><th>مقدار</th></tr><tr><td>متن فارسی</td><td>۱۲</td></tr></tbody></table>
 
       <blockquote data-d-component="text" id="outro">نکتهٔ نهایی: فرمول نمایشی <span data-math="\\sum_{i=1}^{6} i = 21" data-display="true"></span> باید LTR و وسط‌چین بماند.</blockquote>
     </div>

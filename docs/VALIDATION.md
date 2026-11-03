@@ -1,7 +1,7 @@
 # Validation and limitations
 
-For the extension-only v0.1.9 inherited-whitespace correction (component 1.3.5), see
-[the release validation](RELEASE-v0.1.9.md), [the Firefox package validation](RELEASE-v0.1.6.md) and [the ChatGPT hybrid validation record](CHATGPT-HYBRID-QA.md). The v0.1.2
+For the extension-only v0.1.10 bold-text and table correction (component 1.3.6), see
+[the release validation](RELEASE-v0.1.10.md), [the whitespace correction](RELEASE-v0.1.9.md), [the Firefox package validation](RELEASE-v0.1.6.md) and [the ChatGPT hybrid validation record](CHATGPT-HYBRID-QA.md). The v0.1.2
 [adapter validation record](CHATGPT-ADAPTER-QA.md) and the v0.1.1
 [rich prose / math regression validation](RENDERING-REGRESSION-QA.md) remains
 applicable to Gemini and AI Studio.

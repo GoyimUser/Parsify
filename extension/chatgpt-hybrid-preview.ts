@@ -36,11 +36,30 @@ async function verify() {
   });
   const code = document.querySelector("#code-whitespace")?.nextElementSibling?.shadowRoot?.querySelector("pre");
   const hardBreak = document.querySelector("#hard-break")?.nextElementSibling?.shadowRoot?.querySelector("br");
+  const bold = document.querySelector("#default-strong")?.nextElementSibling?.shadowRoot?.querySelector("strong");
+  const combined = document.querySelector("#combined-emphasis")?.nextElementSibling?.shadowRoot?.querySelector("strong em");
+  const fittedTable = document.querySelector<HTMLTableElement>("#narrow-native-table table")!;
+  const fittedPort = fittedTable.parentElement!;
+  const fittedBox = fittedTable.getBoundingClientRect();
+  const portBox = fittedPort.getBoundingClientRect();
+  const wideTable = table.querySelector("table")!;
+  const widePort = wideTable.parentElement!;
+  // Measure initial column visibility, not just the presence of a scrollbar.
+  const firstCell = wideTable.querySelector("th")!.getBoundingClientRect();
+  const wideBox = widePort.getBoundingClientRect();
+  const tablesAligned = Math.abs(fittedBox.right - portBox.right) < 1
+    && Math.abs(fittedBox.width - portBox.width) < 1
+    && firstCell.right <= wideBox.right + 1 && firstCell.left >= wideBox.left - 1
+    && widePort.scrollWidth > widePort.clientWidth
+    && getComputedStyle(document.querySelector("#direct-native-table")!).display === "table";
   const introView = intro.nextElementSibling as HTMLElement | null;
   const richView = rich.nextElementSibling as HTMLElement | null;
   const persianEquationView = persianEquation.nextElementSibling as HTMLElement | null;
   const equation = outro.nextElementSibling?.shadowRoot?.querySelector<HTMLElement>(".katex-display");
   const pass = intro.style.display === "none"
+    && tablesAligned
+    && !!bold && Number(getComputedStyle(bold).fontWeight) >= 600
+    && !!combined && getComputedStyle(combined).fontStyle === "italic"
     && compactGeometry
     && !!hardBreak
     && !!code && getComputedStyle(code).whiteSpace === "pre"

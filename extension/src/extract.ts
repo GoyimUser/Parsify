@@ -56,6 +56,27 @@ function normalizeChatGPTRichText(clone: HTMLElement): HTMLElement {
     return replacement;
   };
 
+  // DIL represents Markdown strong text as data-d-default-strong on ordinary
+  // text spans, not only as a "strong" component. Capture emphasis BEFORE
+  // replacing component tags (which intentionally drops their attributes).
+  // Wrap contents so paragraph/heading semantics and combined styles survive.
+  for (const element of elements("[data-d-default-strong], [data-d-weight], span[style], div[style]").reverse()) {
+    if (!isChatGPTRichTextCandidate(element)) continue;
+    const weight = (element.style.fontWeight || element.dataset.dWeight || "").trim().toLowerCase();
+    const bold = (element.hasAttribute("data-d-default-strong") && element.getAttribute("data-d-default-strong") !== "false")
+      || ["bold", "bolder", "semibold"].includes(weight) || Number.parseInt(weight, 10) >= 600;
+    const italic = /italic|oblique/.test(element.style.fontStyle);
+    const strike = /line-through/.test(element.style.textDecorationLine || element.style.textDecoration);
+    for (const [enabled, tag] of [[strike, "del"], [italic, "em"], [bold, "strong"]] as const) {
+      if (!enabled || element.tagName.toLowerCase() === tag
+        || CHATGPT_INLINE_COMPONENTS[element.dataset.dComponent?.toLowerCase() ?? ""] === tag
+        || (tag === "strong" && element.tagName === "B")) continue;
+      const wrapper = element.ownerDocument.createElement(tag);
+      wrapper.append(...Array.from(element.childNodes));
+      element.append(wrapper);
+    }
+  }
+
   // Work inside-out so a styled child remains a child when its block wrapper
   // is promoted to a semantic heading or paragraph.
   for (const element of elements("[data-d-component]").reverse()) {
@@ -81,20 +102,6 @@ function normalizeChatGPTRichText(clone: HTMLElement): HTMLElement {
     replace(element, `h${level}`);
   }
 
-  // Rich inline emphasis may be represented by a span with inline CSS.  Map
-  // only well-defined Markdown equivalents and retain nesting/word order.
-  for (const element of elements("span[style], div[style]").reverse()) {
-    if (!isChatGPTRichTextCandidate(element)) continue;
-    const weight = element.style.fontWeight.trim().toLowerCase();
-    const weightNumber = Number.parseInt(weight, 10);
-    const bold = weight === "bold" || weight === "bolder" || (!Number.isNaN(weightNumber) && weightNumber >= 600);
-    const italic = /italic|oblique/.test(element.style.fontStyle);
-    const strike = /line-through/.test(element.style.textDecorationLine || element.style.textDecoration);
-    let replacement = element;
-    if (strike) replacement = replace(replacement, "del");
-    if (italic) replacement = replace(replacement, "em");
-    if (bold) replace(replacement, "strong");
-  }
   return root;
 }
 
